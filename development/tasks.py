@@ -15,7 +15,7 @@ else:
     hostname = '10.0.1.37'
 
 plugin_name = 'muzarbuz'
-bundle_name = 'Muzarbuz.bundle'
+bundle_name = 'MuzArbuz.bundle'
 archive = bundle_name + '.zip'
 
 def dest_root(os):
@@ -65,7 +65,7 @@ def reset():
 def copy(plugin_dir):
     run("mkdir -p " + plugin_dir + "/Contents/Code")
 
-    run("cp -R ../Contents/Code/*.py " + plugin_dir + "/Contents/Code")
+    run("cp -R ../Contents/* " + plugin_dir + "/Contents")
 
     print("Files were copied.")
 
