@@ -3,11 +3,11 @@ import constants
 def append_controls(oc, response, page, callback, **params):
     page = int(page)
 
-    if 'pagination' in response['data']:
+    if 'pagination' in response:
+        pagination = response['pagination']
+
         next_callback = Callback(callback, page=page+1, **params)
         previous_callback = Callback(callback, page=page-1, **params)
-
-        pagination = response['data']['pagination']
 
         if pagination['page'] and pagination['pages']:
             previous_pagination_message = '%d / %d' % (int(pagination['page']-1), int(pagination['pages']))

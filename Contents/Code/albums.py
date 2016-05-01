@@ -41,7 +41,7 @@ def SearchMusicAlbums(title, query, page=1, **params):
         oc.add(media)
 
     util.add_pagination_to_response(response, page)
-    pagination.append_controls(oc, response, callback=SearchMusicAlbums, title=title, query=query, page=page, **params)
+    pagination.append_controls(oc, response['data'], callback=SearchMusicAlbums, title=title, query=query, page=page, **params)
 
     return oc
 
@@ -70,7 +70,7 @@ def HandleAlbums(title, page=1, **params):
     ))
 
     util.add_pagination_to_response(response, page)
-    pagination.append_controls(oc, response, callback=HandleAlbums, title=title, page=page, **params)
+    pagination.append_controls(oc, response['data'], callback=HandleAlbums, title=title, page=page, **params)
 
     return oc
 

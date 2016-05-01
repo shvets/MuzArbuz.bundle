@@ -28,7 +28,7 @@ def SearchMusicAudioTracks(title, query, page, **params):
         oc.add(GetAudioTrack(title=unicode(title), thumb=thumb, artist=artist, format=format, url=url))
 
     util.add_pagination_to_response(response, page)
-    pagination.append_controls(oc, response, callback=SearchMusicAudioTracks, title=title, query=query, page=page, **params)
+    pagination.append_controls(oc, response['data'], callback=SearchMusicAudioTracks, title=title, query=query, page=page, **params)
 
     return oc
 
@@ -59,7 +59,7 @@ def HandleAudioTracks(name, thumb, page=1, **params):
     music_queue.append_controls(oc, name=name, thumb=thumb, **params)
 
     util.add_pagination_to_response(response, page)
-    pagination.append_controls(oc, response, callback=HandleAudioTracks, name=name, thumb=thumb, page=page, **params)
+    pagination.append_controls(oc, response['data'], callback=HandleAudioTracks, name=name, thumb=thumb, page=page, **params)
 
     return oc
 

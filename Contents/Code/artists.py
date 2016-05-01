@@ -74,7 +74,7 @@ def HandleLetter(title, page=1, **params):
         oc.add(artist)
 
     util.add_pagination_to_response(response, page)
-    pagination.append_controls(oc, response, callback=HandleLetter, title=title, page=page, **params)
+    pagination.append_controls(oc, response['data'], callback=HandleLetter, title=title, page=page, **params)
 
     add_search_artists(oc)
 
@@ -94,7 +94,7 @@ def SearchMusicArtists(title, query, page, **params):
         oc.add(artist)
 
     util.add_pagination_to_response(response, page)
-    pagination.append_controls(oc, response, callback=SearchMusicArtists, title=title, query=query, page=page, **params)
+    pagination.append_controls(oc, response['data'], callback=SearchMusicArtists, title=title, query=query, page=page, **params)
 
     return oc
 
@@ -114,7 +114,7 @@ def HandleArtists(title, page=1, **params):
         oc.add(artist)
 
     util.add_pagination_to_response(response, page)
-    pagination.append_controls(oc, response, callback=HandleArtists, title=title, page=page)
+    pagination.append_controls(oc, response['data'], callback=HandleArtists, title=title, page=page)
 
     add_search_artists(oc)
 

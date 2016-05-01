@@ -7,7 +7,6 @@ from http_service import HttpService
 class MusicService(HttpService):
     BASE_URL = "https://muzarbuz.com"
     API_URL = BASE_URL + "/api/v1"
-
     USER_AGENT = 'Plex User Agent'
 
     def get_albums(self, **params):
@@ -25,11 +24,6 @@ class MusicService(HttpService):
 
         return self.api_request(url, **params)
 
-    # def get_artist(self, id):
-    #     url = self.build_url(self.API_URL + "/artist/" + str(id))
-    #
-    #     return self.api_request(url, **params)
-
     def get_artist_annotated(self, **params):
         url = self.build_url(self.API_URL + "/artist_annotated", **params)
 
@@ -39,11 +33,6 @@ class MusicService(HttpService):
         url = self.build_url(self.API_URL + "/collection", **params)
 
         return self.api_request(url, **params)
-
-    # def get_collection(self, id):
-    #     url = self.build_url(self.API_URL + "/collection/" + str(id))
-    #
-    #     return self.api_request(url, **params)
 
     def get_genres(self, **params):
         url = self.build_url(self.API_URL + "/genre", **params)
@@ -84,4 +73,4 @@ class MusicService(HttpService):
         headers['User-agent'] = self.USER_AGENT
         headers['Content-Type'] = 'application/json'
 
-        return json.loads(self.http_request(url, headers=headers))
+        return json.loads(self.http_request(url, headers=headers).read())
