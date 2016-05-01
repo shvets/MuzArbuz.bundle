@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import common
+import util
 import constants
 import music_queue
 import pagination
@@ -65,7 +65,7 @@ def HandleLetter(title, page=1, **params):
     oc = ObjectContainer(title2=unicode(title))
 
     page = int(page)
-    limit = common.get_elements_per_page()
+    limit = util.get_elements_per_page()
     offset = (page-1)*limit
 
     response = service.get_artist_annotated(limit=limit, offset=offset, **params)
@@ -73,7 +73,7 @@ def HandleLetter(title, page=1, **params):
     for artist in BuildArtistsList(response['objects']):
         oc.add(artist)
 
-    common.add_pagination_to_response(response, page)
+    util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response, callback=HandleLetter, title=title, page=page, **params)
 
     add_search_artists(oc)
@@ -85,15 +85,15 @@ def SearchMusicArtists(title, query, page, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
     page = int(page)
-    limit = common.get_elements_per_page()
+    limit = util.get_elements_per_page()
     offset = (page-1)*limit
 
-    response = service.search_artist_annotated(q=query, limit=common.get_elements_per_page(), offset=offset)
+    response = service.search_artist_annotated(q=query, limit=util.get_elements_per_page(), offset=offset)
 
     for artist in BuildArtistsList(response['objects']):
         oc.add(artist)
 
-    common.add_pagination_to_response(response, page)
+    util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response, callback=SearchMusicArtists, title=title, query=query, page=page, **params)
 
     return oc
@@ -103,7 +103,7 @@ def HandleArtists(title, page=1, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
     page = int(page)
-    limit = common.get_elements_per_page()
+    limit = util.get_elements_per_page()
     offset = (page-1)*limit
 
     response = service.get_artists(limit=limit, offset=offset, **params)
@@ -113,7 +113,7 @@ def HandleArtists(title, page=1, **params):
     for artist in BuildArtistsList(response['objects']):
         oc.add(artist)
 
-    common.add_pagination_to_response(response, page)
+    util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response, callback=HandleArtists, title=title, page=page)
 
     add_search_artists(oc)
@@ -141,8 +141,8 @@ def GetArtistMenu(id, title, thumb, **params):
     oc = ObjectContainer(title2=unicode(L("Artist") + " " + title))
 
     response1 = service.get_albums(artists=id, limit=1, offset=0,
-                                         year__gte=common.get_start_music_year(),
-                                         year__lte=common.get_end_music_year())
+                                   year__gte=util.get_start_music_year(),
+                                   year__lte=util.get_end_music_year())
     count1 = int(response1['meta']['total_count'])
 
     if count1 > 0:
@@ -153,8 +153,8 @@ def GetArtistMenu(id, title, thumb, **params):
         ))
 
     response2 = service.get_tracks(artists=id, limit=1, offset=0,
-                                         year__gte=common.get_start_music_year(),
-                                         year__lte=common.get_end_music_year())
+                                   year__gte=util.get_start_music_year(),
+                                   year__lte=util.get_end_music_year())
     count2 = int(response2['meta']['total_count'])
 
     if count2 > 0:

@@ -1,4 +1,4 @@
-import common
+import util
 import constants
 import music_queue
 import pagination
@@ -27,7 +27,7 @@ def HandleCollections(title, page=1, **params):
     oc = ObjectContainer()
 
     page = int(page)
-    limit = common.get_elements_per_page()
+    limit = util.get_elements_per_page()
     offset = (page-1)*limit
 
     response = service.get_collections(limit=limit, offset=offset)
@@ -44,7 +44,7 @@ def HandleCollections(title, page=1, **params):
 
     add_search_collections(oc)
 
-    common.add_pagination_to_response(response, page)
+    util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response, callback=HandleCollections, title=title, page=page)
 
     return oc
@@ -63,17 +63,17 @@ def HandleCollection(title, collection__id, thumb):
 @route(constants.PREFIX + '/search_music_collections')
 def SearchMusicCollections(title, query, page=1, **params):
     page = int(page)
-    limit = common.get_elements_per_page()
+    limit = util.get_elements_per_page()
     offset = (page-1)*limit
 
     oc = ObjectContainer(title2=unicode(L(title)))
 
-    response = service.search_collection(q=query, limit=common.get_elements_per_page(), offset=offset)
+    response = service.search_collection(q=query, limit=util.get_elements_per_page(), offset=offset)
 
     for media in artists.BuildArtistsList(response['objects']):
         oc.add(media)
 
-    common.add_pagination_to_response(response, page)
+    util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response, callback=SearchMusicCollections, title=title, query=query, page=page, **params)
 
     return oc

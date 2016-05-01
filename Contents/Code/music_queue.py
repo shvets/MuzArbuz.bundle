@@ -1,4 +1,4 @@
-import common
+import util
 import constants
 import albums
 import artists
@@ -88,7 +88,7 @@ def GetQueue(title, filter=None):
                 key = Callback(albums.HandleDoubleAlbum, name=name, parent__id=id, thumb=thumb)
                 oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
 
-    common.add_search_music(oc)
+    util.add_search_music(oc)
 
     return oc
 

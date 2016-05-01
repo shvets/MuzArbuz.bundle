@@ -1,4 +1,4 @@
-import common
+import util
 import constants
 import music_queue
 import albums
@@ -17,7 +17,7 @@ def GetGenresMenu(title):
             title=unicode(L('Favorite Genres'))
     ))
 
-    common.add_search_music(oc)
+    util.add_search_music(oc)
 
     return oc
 
@@ -38,7 +38,7 @@ def HandleMusicGenres(title):
         key = Callback(HandleMusicGenre, title=title, thumb=thumb, genre__in=id)
         oc.add(DirectoryObject(key=key, title=unicode(title), thumb=thumb))
 
-    common.add_search_music(oc)
+    util.add_search_music(oc)
 
     return oc
 
@@ -51,6 +51,6 @@ def HandleMusicGenre(title, genre__in, thumb):
 
     music_queue.append_controls(oc, name=title, thumb=thumb, genre__in=genre__in)
 
-    common.add_search_music(oc)
+    util.add_search_music(oc)
 
     return oc

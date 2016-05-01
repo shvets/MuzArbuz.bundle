@@ -1,4 +1,4 @@
-import common
+import util
 import constants
 import pagination
 import music_queue
@@ -32,15 +32,15 @@ def SearchMusicAlbums(title, query, page=1, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
     page = int(page)
-    limit = common.get_elements_per_page()
+    limit = util.get_elements_per_page()
     offset = (page-1)*limit
 
-    response = service.search_album(q=query, limit=common.get_elements_per_page(), offset=offset)
+    response = service.search_album(q=query, limit=util.get_elements_per_page(), offset=offset)
 
     for media in BuildAlbumsList(response['objects']):
         oc.add(media)
 
-    common.add_pagination_to_response(response, page)
+    util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response, callback=SearchMusicAlbums, title=title, query=query, page=page, **params)
 
     return oc
@@ -50,13 +50,13 @@ def HandleAlbums(title, page=1, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
     page = int(page)
-    limit = common.get_elements_per_page()
+    limit = util.get_elements_per_page()
     offset = (page-1)*limit
 
     response = service.get_albums(limit=limit, offset=offset,
-                                        year__gte=common.get_start_music_year(),
-                                        year__lte=common.get_end_music_year(),
-                                        **params)
+                                  year__gte=util.get_start_music_year(),
+                                  year__lte=util.get_end_music_year(),
+                                  **params)
 
     oc.title2 = unicode(L(title)) + ' (' + str(response['meta']['total_count']) + ')'
 
@@ -69,7 +69,7 @@ def HandleAlbums(title, page=1, **params):
             thumb=R(constants.SEARCH_ICON)
     ))
 
-    common.add_pagination_to_response(response, page)
+    util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response, callback=HandleAlbums, title=title, page=page, **params)
 
     return oc
@@ -102,10 +102,10 @@ def BuildAlbumsList(response, **params):
 def HandleDoubleAlbum(name, thumb, **params):
     oc = ObjectContainer(title2=unicode(name))
 
-    response = service.get_albums(limit=common.get_elements_per_page(),
-                                        year__gte=common.get_start_music_year(),
-                                        year__lte=common.get_end_music_year(),
-                                        **params)
+    response = service.get_albums(limit=util.get_elements_per_page(),
+                                  year__gte=util.get_start_music_year(),
+                                  year__lte=util.get_end_music_year(),
+                                  **params)
 
     for media in response['objects']:
         id = media['id']

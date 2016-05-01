@@ -1,4 +1,4 @@
-import common
+import util
 import constants
 import music_queue
 import pagination
@@ -8,10 +8,10 @@ def SearchMusicAudioTracks(title, query, page, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
     page = int(page)
-    limit = common.get_elements_per_page()
+    limit = util.get_elements_per_page()
     offset = (page-1)*limit
 
-    response = service.search_audio_track(q=query, limit=common.get_elements_per_page(), offset=offset)
+    response = service.search_audio_track(q=query, limit=util.get_elements_per_page(), offset=offset)
 
     for media in response['objects']:
         title = media['title']
@@ -27,7 +27,7 @@ def SearchMusicAudioTracks(title, query, page, **params):
 
         oc.add(GetAudioTrack(title=unicode(title), thumb=thumb, artist=artist, format=format, url=url))
 
-    common.add_pagination_to_response(response, page)
+    util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response, callback=SearchMusicAudioTracks, title=title, query=query, page=page, **params)
 
     return oc
@@ -37,10 +37,10 @@ def HandleAudioTracks(name, thumb, page=1, **params):
     oc = ObjectContainer(title2=unicode(name))
 
     page = int(page)
-    limit = common.get_elements_per_page()
+    limit = util.get_elements_per_page()
     offset = (page-1)*limit
 
-    response = service.get_tracks(limit=common.get_elements_per_page(), offset=offset, **params)
+    response = service.get_tracks(limit=util.get_elements_per_page(), offset=offset, **params)
 
     for media in response['objects']:
         title = media['title']
@@ -58,7 +58,7 @@ def HandleAudioTracks(name, thumb, page=1, **params):
 
     music_queue.append_controls(oc, name=name, thumb=thumb, **params)
 
-    common.add_pagination_to_response(response, page)
+    util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response, callback=HandleAudioTracks, name=name, thumb=thumb, page=page, **params)
 
     return oc

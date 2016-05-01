@@ -1,5 +1,7 @@
-import urllib
 import sys
+import urllib
+import json
+from lxml import html
 
 try:
     from urllib2 import Request, urlopen
@@ -31,9 +33,65 @@ class HttpService():
             for key, value in headers.items():
                 request.add_header(key, value)
 
-        response = urlopen(request).read()
+        return urlopen(request)
+
+    def get_content(self, response):
+        content = response.read()
 
         if sys.version_info.major == 3:
-            response = response.decode('utf-8')
+            return content.decode('utf-8')
+        else:
+            return content
 
-        return response
+    def get_base_url(self, url):
+        path = url.split('/')
+        path.pop()
+        path = '/'.join(path)
+
+        return path
+
+    def get_play_list(self, url, base_url=None):
+        if not base_url:
+            base_url = self.get_base_url(url)
+
+        lines = self.http_request(url).read().splitlines()
+
+        new_lines = []
+
+        for line in lines:
+            if line[:1] == '#':
+                new_lines.append(line)
+            else:
+                new_lines.append(base_url + '/' + line)
+
+        return "\n".join(new_lines)
+
+    def get_play_list_urls(self, url):
+        play_list = self.get_play_list(url)
+
+        lines = play_list.splitlines()
+
+        urls = []
+
+        for line in lines:
+            if line[:1] != '#':
+                urls.append(line)
+
+        return urls
+
+    def fetch_content(self, url, headers=None):
+        return self.http_request(url, headers=headers).read()
+
+    def fetch_document(self, url, headers=None):
+        content = self.fetch_content(url, headers=headers)
+
+        return self.to_document(content)
+
+    def to_document(self, buffer):
+        return html.fromstring(buffer)
+
+    def to_json(self, buffer):
+        if not buffer:
+            buffer = "{}"
+
+        return json.loads(buffer)

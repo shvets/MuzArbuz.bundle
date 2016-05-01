@@ -4,7 +4,7 @@ from plex_music_service import PlexMusicService
 
 service = PlexMusicService()
 
-import common
+import util
 import albums
 import artists
 import collections
@@ -14,7 +14,7 @@ import audio_tracks
 def Start():
     HTTP.CacheTime = CACHE_1HOUR
 
-    common.validate_prefs()
+    util.validate_prefs()
 
 @handler(constants.PREFIX, 'Muzarbuz', thumb=constants.ICON, art=constants.ART)
 def MainMenu():
@@ -29,6 +29,6 @@ def MainMenu():
     oc.add(DirectoryObject(key=Callback(collections.GetCollectionsMenu, title=L('Collections')), title=unicode(L('Collections'))))
     oc.add(DirectoryObject(key=Callback(genres.GetGenresMenu, title=L('Genres')), title=unicode(L('Genres'))))
 
-    common.add_search_music(oc)
+    util.add_search_music(oc)
 
     return oc
