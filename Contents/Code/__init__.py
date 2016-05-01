@@ -2,12 +2,7 @@ import constants
 
 from plex_music_service import PlexMusicService
 
-def on_error(e):
-    Log(e)
-
-    return ObjectContainer(header='Results', message=unicode(e))
-
-service = PlexMusicService(on_error)
+service = PlexMusicService()
 
 import common
 import albums
@@ -16,13 +11,13 @@ import collections
 import genres
 import audio_tracks
 
-def Start(): # Initialize the plug-in
+def Start():
     HTTP.CacheTime = CACHE_1HOUR
 
     common.validate_prefs()
 
 @handler(constants.PREFIX, 'Muzarbuz', thumb=constants.ICON, art=constants.ART)
-def MainMenu(complete=False, offline=False):
+def MainMenu():
     oc = ObjectContainer(title1='Muzarbuz', art=R(constants.ART))
 
     oc.http_cookies = HTTP.CookiesForURL(service.API_URL)
