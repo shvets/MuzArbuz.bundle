@@ -1,11 +1,4 @@
-ART = 'art-default.jpg'
-ICON = 'icon-default.png'
-SEARCH_ICON = 'icon-search.png'
-OPTIONS_ICON = 'icon-options.png'
-NEXT_ICON = 'icon-next.png'
-BACK_ICON = 'icon-back.png'
-ADD_ICON = 'icon-add.png'
-REMOVE_ICON = 'icon-remove.png'
+import constants
 
 from plex_music_service import PlexMusicService
 
@@ -28,9 +21,9 @@ def Start(): # Initialize the plug-in
 
     common.validate_prefs()
 
-@handler('/music/music', 'Muzarbuz', thumb=ICON, art=ART)
+@handler(constants.PREFIX, 'Muzarbuz', thumb=constants.ICON, art=constants.ART)
 def MainMenu(complete=False, offline=False):
-    oc = ObjectContainer(title1='Muzarbuz', art=R(ART))
+    oc = ObjectContainer(title1='Muzarbuz', art=R(constants.ART))
 
     oc.http_cookies = HTTP.CookiesForURL(service.API_URL)
 

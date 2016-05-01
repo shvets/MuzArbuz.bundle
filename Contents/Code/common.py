@@ -5,7 +5,7 @@ import artists
 import collections
 import audio_tracks
 
-@route('/music/music/search_music')
+@route(constants.PREFIX + '/search_music')
 def SearchMusic(query=None, page=1, **params):
     page = int(page)
 
@@ -48,7 +48,7 @@ def SearchMusic(query=None, page=1, **params):
     return oc
 
 def add_search_music(oc):
-    oc.add(InputDirectoryObject(key=Callback(SearchMusic), title=unicode(L("Search Music")), thumb=R(SEARCH_ICON)))
+    oc.add(InputDirectoryObject(key=Callback(SearchMusic), title=unicode(L("Search Music")), thumb=R(constants.SEARCH_ICON)))
 
 def add_pagination_to_response(response, page):
     page = int(page)

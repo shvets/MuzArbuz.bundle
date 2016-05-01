@@ -1,10 +1,11 @@
 import common
+import constants
 import music_queue
 import pagination
 import artists
 import audio_tracks
 
-@route('/music/music/collections_menu')
+@route(constants.PREFIX + '/collections_menu')
 def GetCollectionsMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -21,7 +22,7 @@ def GetCollectionsMenu(title):
 
     return oc
 
-@route('/music/music/collections')
+@route(constants.PREFIX + '/collections')
 def HandleCollections(title, page=1, **params):
     oc = ObjectContainer()
 
@@ -48,7 +49,7 @@ def HandleCollections(title, page=1, **params):
 
     return oc
 
-@route('/music/music/collection')
+@route(constants.PREFIX + '/collection')
 def HandleCollection(title, collection__id, thumb):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -59,7 +60,7 @@ def HandleCollection(title, collection__id, thumb):
 
     return oc
 
-@route('/music/music/search_music_collections')
+@route(constants.PREFIX + '/search_music_collections')
 def SearchMusicCollections(title, query, page=1, **params):
     page = int(page)
     limit = common.get_elements_per_page()
@@ -81,5 +82,5 @@ def add_search_collections(oc):
     oc.add(InputDirectoryObject(
         key=Callback(SearchMusicCollections, title=unicode(L("Collections Search"))),
         title=unicode(L("Collections Search")),
-        thumb=R(SEARCH_ICON)
+        thumb=R(constants.SEARCH_ICON)
     ))

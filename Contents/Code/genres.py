@@ -1,8 +1,9 @@
 import common
+import constants
 import music_queue
 import albums
 
-@route('/music/music/genres_menu')
+@route(constants.PREFIX + '/genres_menu')
 def GetGenresMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -20,7 +21,7 @@ def GetGenresMenu(title):
 
     return oc
 
-@route('/music/music/music_genres')
+@route(constants.PREFIX + '/music_genres')
 def HandleMusicGenres(title):
     oc = ObjectContainer()
 
@@ -41,7 +42,7 @@ def HandleMusicGenres(title):
 
     return oc
 
-@route('/music/music/music_genre')
+@route(constants.PREFIX + '/music_genre')
 def HandleMusicGenre(title, genre__in, thumb):
     oc = ObjectContainer(title2=unicode(L(title)))
 

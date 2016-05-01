@@ -1,4 +1,5 @@
 import common
+import constants
 import albums
 import artists
 import audio_tracks
@@ -12,16 +13,16 @@ def append_controls(oc, name, thumb=None, **params):
         oc.add(DirectoryObject(
                 key=Callback(HandleRemoveFromQueue, type=type, id=id, name=name, thumb=thumb, **params),
                 title=unicode(L('Remove from Queue')),
-                thumb=R(REMOVE_ICON)
+                thumb=R(constants.REMOVE_ICON)
         ))
     else:
         oc.add(DirectoryObject(
                 key=Callback(HandleAddToQueue, type=type, id=id, name=name, thumb=thumb, **params),
                 title=unicode(L('Add to Queue')),
-                thumb=R(ADD_ICON)
+                thumb=R(constants.ADD_ICON)
         ))
 
-@route('/music/music/add_to_queue')
+@route(constants.PREFIX + '/add_to_queue')
 def HandleAddToQueue(name, thumb, **params):
     type = get_type(params)
     id = params[type]
@@ -36,7 +37,7 @@ def HandleAddToQueue(name, thumb, **params):
         message=u'%s' % L('Media Added')
     )
 
-@route('/music/music/remove_from_queue')
+@route(constants.PREFIX + '/remove_from_queue')
 def HandleRemoveFromQueue(name, thumb, **params):
     type = get_type(params)
     id = params[type]
@@ -51,7 +52,7 @@ def HandleRemoveFromQueue(name, thumb, **params):
         message=u'%s' % L('Media Removed')
     )
 
-@route('/music/music/queue')
+@route(constants.PREFIX + '/queue')
 def GetQueue(title, filter=None):
     oc = ObjectContainer(title2=unicode(L(title)))
 

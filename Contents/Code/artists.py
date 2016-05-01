@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import common
+import constants
 import music_queue
 import pagination
 import albums
@@ -12,7 +13,7 @@ CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 
 LATIN_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
                  'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 
-@route('/music/music/artists_menu')
+@route(constants.PREFIX + '/artists_menu')
 def GetArtistsMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -37,7 +38,7 @@ def GetArtistsMenu(title):
 
     return oc
 
-@route('/music/music/cyrillic_letters_menu')
+@route(constants.PREFIX + '/cyrillic_letters_menu')
 def GetCyrillicLettersMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -48,7 +49,7 @@ def GetCyrillicLettersMenu(title):
 
     return oc
 
-@route('/music/music/latin_letters_menu')
+@route(constants.PREFIX + '/latin_letters_menu')
 def GetLatinLettersMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -59,7 +60,7 @@ def GetLatinLettersMenu(title):
 
     return oc
 
-@route('/music/music/letter')
+@route(constants.PREFIX + '/letter')
 def HandleLetter(title, page=1, **params):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -79,7 +80,7 @@ def HandleLetter(title, page=1, **params):
 
     return oc
 
-@route('/music/music/search_music_artists')
+@route(constants.PREFIX + '/search_music_artists')
 def SearchMusicArtists(title, query, page, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -97,7 +98,7 @@ def SearchMusicArtists(title, query, page, **params):
 
     return oc
 
-@route('/music/music/artists')
+@route(constants.PREFIX + '/artists')
 def HandleArtists(title, page=1, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -135,7 +136,7 @@ def BuildArtistsList(response):
 
     return list
 
-@route('/music/music/artist_menu')
+@route(constants.PREFIX + '/artist_menu')
 def GetArtistMenu(id, title, thumb, **params):
     oc = ObjectContainer(title2=unicode(L("Artist") + " " + title))
 
@@ -171,5 +172,5 @@ def add_search_artists(oc):
     oc.add(InputDirectoryObject(
         key=Callback(SearchMusicArtists, title=unicode(L("Artists Search"))),
         title=unicode(L("Artists Search")),
-        thumb=R(SEARCH_ICON)
+        thumb=R(constants.SEARCH_ICON)
     ))

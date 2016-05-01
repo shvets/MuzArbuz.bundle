@@ -1,9 +1,10 @@
 import common
+import constants
 import pagination
 import music_queue
 import audio_tracks
 
-@route('/music/music/albums_menu')
+@route(constants.PREFIX + '/albums_menu')
 def GetAlbumsMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -21,12 +22,12 @@ def GetAlbumsMenu(title):
     oc.add(InputDirectoryObject(
             key=Callback(SearchMusicAlbums, title=unicode(L("Albums Search"))),
             title=unicode(L("Albums Search")),
-            thumb=R(SEARCH_ICON)
+            thumb=R(constants.SEARCH_ICON)
     ))
 
     return oc
 
-@route('/music/music/search_music_albums')
+@route(constants.PREFIX + '/search_music_albums')
 def SearchMusicAlbums(title, query, page=1, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -44,7 +45,7 @@ def SearchMusicAlbums(title, query, page=1, **params):
 
     return oc
 
-@route('/music/music/albums')
+@route(constants.PREFIX + '/albums')
 def HandleAlbums(title, page=1, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -65,7 +66,7 @@ def HandleAlbums(title, page=1, **params):
     oc.add(InputDirectoryObject(
             key=Callback(SearchMusicAlbums, title=unicode(L("Albums Search")), page=page),
             title=unicode(L("Albums Search")),
-            thumb=R(SEARCH_ICON)
+            thumb=R(constants.SEARCH_ICON)
     ))
 
     common.add_pagination_to_response(response, page)
@@ -97,7 +98,7 @@ def BuildAlbumsList(response, **params):
 
     return list
 
-@route('/music/music/double_album')
+@route(constants.PREFIX + '/double_album')
 def HandleDoubleAlbum(name, thumb, **params):
     oc = ObjectContainer(title2=unicode(name))
 

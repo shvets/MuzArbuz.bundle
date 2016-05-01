@@ -1,8 +1,9 @@
 import common
+import constants
 import music_queue
 import pagination
 
-@route('/music/music/search_music_audio_tracks')
+@route(constants.PREFIX + '/search_music_audio_tracks')
 def SearchMusicAudioTracks(title, query, page, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -31,7 +32,7 @@ def SearchMusicAudioTracks(title, query, page, **params):
 
     return oc
 
-@route('/music/music/audio_tracks')
+@route(constants.PREFIX + '/audio_tracks')
 def HandleAudioTracks(name, thumb, page=1, **params):
     oc = ObjectContainer(title2=unicode(name))
 
@@ -62,7 +63,7 @@ def HandleAudioTracks(name, thumb, page=1, **params):
 
     return oc
 
-@route('/music/music/audio_track')
+@route(constants.PREFIX + '/audio_track')
 def GetAudioTrack(title, thumb, artist, format, url, container=False, **params):
     track = MetadataObjectForURL(title=title, thumb=thumb, artist=artist, format=format, url=url, container=container)
 
@@ -116,7 +117,7 @@ def MediaObjectsForURL(url, format):
 
     return media_objects
 
-@route('/music/music/play_audio')
+@route(constants.PREFIX + '/play_audio')
 def PlayMusic(url):
     Log(url)
 
