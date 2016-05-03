@@ -2,6 +2,9 @@ import util
 import constants
 import music_queue
 import pagination
+from flow_builder import FlowBuilder
+
+builder = FlowBuilder()
 
 @route(constants.PREFIX + '/search_music_audio_tracks')
 def SearchMusicAudioTracks(title, query, page, **params):
@@ -77,20 +80,15 @@ def GetAudioTrack(title, thumb, artist, format, url, container=False, **params):
         return track
 
 def MetadataObjectForURL(title, thumb, artist, format, url, container):
-    track = TrackObject(
-        key=Callback(GetAudioTrack, title=title, thumb=thumb, format=format, artist=artist, url=url, container=True),
-        rating_key = unicode(title),
-        title = unicode(title),
-        # album = 'album',
-        thumb=thumb,
-        artist = artist
-    )
+    metadata_object = builder.build_metadata_object(media_type='track')
 
-    track.items = MediaObjectsForURL(url, format)
+    metadata_object.key = Callback(GetAudioTrack, title=title, thumb=thumb, format=format, artist=artist, url=url, container=True)
+    metadata_object.rating_key = unicode(title)
+    metadata_object.title = unicode(title)
+    #metadata_object.album = 'album'
+    metadata_object.thumb = thumb
+    metadata_object.artist = artist
 
-    return track
-
-def MediaObjectsForURL(url, format):
     if 'm4a' in format:
         container = Container.MP4
         audio_codec = AudioCodec.AAC
@@ -98,27 +96,36 @@ def MediaObjectsForURL(url, format):
         container = Container.MP3
         audio_codec = AudioCodec.MP3
 
+    urls_items = [
+        {
+            "url": url,
+            "config": {
+                "container": container,
+                "audio_codec": audio_codec,
+                "bitrate": "128"
+            }
+        }
+    ]
+
+    metadata_object.items = MediaObjectsForURL(urls_items, PlayMusic)
+
+    return metadata_object
+
+def MediaObjectsForURL(urls_items, player):
     media_objects = []
 
-    media_object = MediaObject(
-        container = container,
-        optimized_for_streaming=True
-    )
+    for item in urls_items:
+        url = item['url']
+        config = item['config']
 
-    part_object = PartObject(key=Callback(PlayMusic, url=url))
+        play_callback = Callback(player, url=url)
 
-    audio_stream = AudioStreamObject(codec=audio_codec, channels=2, bitrate=str(128))
+        media_object = builder.build_media_object(play_callback, config)
 
-    part_object.streams = [audio_stream]
-
-    media_object.parts.append(part_object)
-
-    media_objects.append(media_object)
+        media_objects.append(media_object)
 
     return media_objects
 
 @route(constants.PREFIX + '/play_audio')
 def PlayMusic(url):
-    Log(url)
-
     return Redirect(url)
