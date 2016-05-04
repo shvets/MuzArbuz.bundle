@@ -28,7 +28,7 @@ def SearchMusicAudioTracks(title, query, page, **params):
         format = 'mp3'
         url = service.BASE_URL + file
 
-        oc.add(GetAudioTrack(title=unicode(title), thumb=thumb, artist=artist, format=format, url=url))
+        oc.add(GetAudioTrack(path=url, name=unicode(title), thumb=thumb, artist=artist, format=format))
 
     util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response['data'], callback=SearchMusicAudioTracks, title=title, query=query, page=page, **params)
@@ -57,7 +57,7 @@ def HandleAudioTracks(name, thumb, page=1, **params):
         format = 'mp3'
         url = service.BASE_URL + file
 
-        oc.add(GetAudioTrack(title=unicode(title), thumb=thumb, artist=artist, format=format, url=url))
+        oc.add(GetAudioTrack(path=url, name=unicode(title), thumb=thumb, artist=artist, format=format))
 
     music_queue.append_controls(oc, name=name, thumb=thumb, **params)
 
@@ -67,11 +67,30 @@ def HandleAudioTracks(name, thumb, page=1, **params):
     return oc
 
 @route(constants.PREFIX + '/audio_track')
-def GetAudioTrack(title, thumb, artist, format, url, container=False, **params):
-    track = MetadataObjectForURL(title=title, thumb=thumb, artist=artist, format=format, url=url, container=container)
+def GetAudioTrack(path, name, thumb, artist, format, container=False):
+    if 'm4a' in format:
+        audio_container = Container.MP4
+        audio_codec = AudioCodec.AAC
+    else:
+        audio_container = Container.MP3
+        audio_codec = AudioCodec.MP3
+
+    url_items = [
+        {
+            "url": path,
+            "config": {
+                "container": audio_container,
+                "audio_codec": audio_codec,
+                "bitrate": "128"
+            }
+        }
+    ]
+
+    track = MetadataObjectForURL("track", path=path, name=name, thumb=thumb, artist=artist, format=format,
+                                 url_items=url_items, player=PlayMusic)
 
     if container:
-        oc = ObjectContainer(title2=unicode(title))
+        oc = ObjectContainer(title2=unicode(name))
 
         oc.add(track)
 
@@ -79,42 +98,25 @@ def GetAudioTrack(title, thumb, artist, format, url, container=False, **params):
     else:
         return track
 
-def MetadataObjectForURL(title, thumb, artist, format, url, container):
-    metadata_object = builder.build_metadata_object(media_type='track')
+def MetadataObjectForURL(media_type, path, name, thumb, artist, format, url_items, player):
+    metadata_object = builder.build_metadata_object(media_type=media_type, title=name)
 
-    metadata_object.key = Callback(GetAudioTrack, title=title, thumb=thumb, format=format, artist=artist, url=url, container=True)
-    metadata_object.rating_key = unicode(title)
-    metadata_object.title = unicode(title)
+    metadata_object.key = Callback(GetAudioTrack, path=path, name=name, thumb=thumb, artist=artist,
+                                   format=format, container=True)
+    metadata_object.rating_key = unicode(name)
+    #metadata_object.title = unicode(title)
     #metadata_object.album = 'album'
-    metadata_object.thumb = thumb
+    #metadata_object.thumb = thumb
     metadata_object.artist = artist
 
-    if 'm4a' in format:
-        container = Container.MP4
-        audio_codec = AudioCodec.AAC
-    else:
-        container = Container.MP3
-        audio_codec = AudioCodec.MP3
-
-    urls_items = [
-        {
-            "url": url,
-            "config": {
-                "container": container,
-                "audio_codec": audio_codec,
-                "bitrate": "128"
-            }
-        }
-    ]
-
-    metadata_object.items = MediaObjectsForURL(urls_items, PlayMusic)
+    metadata_object.items = MediaObjectsForURL(url_items, player)
 
     return metadata_object
 
-def MediaObjectsForURL(urls_items, player):
+def MediaObjectsForURL(url_items, player):
     media_objects = []
 
-    for item in urls_items:
+    for item in url_items:
         url = item['url']
         config = item['config']
 

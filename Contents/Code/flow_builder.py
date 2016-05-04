@@ -14,6 +14,9 @@ class FlowBuilder():
         if 'bitrate' in config.keys():
             audio_stream.bitrate = config['bitrate']
 
+        if 'duration' in config.keys():
+            audio_stream.bitrate = config['duration']
+
         video_stream = VideoStreamObject()
 
         if 'video_codec' in config.keys():
@@ -56,20 +59,28 @@ class FlowBuilder():
 
         return media_object
 
-    def build_metadata_object(self, media_type, **params):
+    def build_metadata_object(self, media_type, title):
         if media_type == 'episode':
-            video = EpisodeObject(**params)
+            metadata_object = EpisodeObject()
+
+            metadata_object.show = title
 
         elif media_type == 'tv_show':
-            video = TVShowObject(**params)
+            metadata_object = TVShowObject()
 
         elif media_type == 'movie':
-            video = MovieObject(**params)
+            metadata_object = MovieObject()
+
+            metadata_object.title = title
 
         elif media_type == 'track':
-            video = TrackObject(**params)
+            metadata_object = TrackObject()
+
+            metadata_object.title = title
 
         else:
-            video = VideoClipObject(**params)
+            metadata_object = VideoClipObject()
 
-        return video
+            metadata_object.title = title
+
+        return metadata_object
