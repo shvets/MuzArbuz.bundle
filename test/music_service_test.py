@@ -5,11 +5,11 @@ import test_helper
 import unittest
 import json
 
-from music_service import MusicService
+from muz_arbuz_service import MuzArbuzService
 
 class MuzarbuzServiceTest(unittest.TestCase):
     def setUp(self):
-        self.service = MusicService()
+        self.service = MuzArbuzService()
 
     def test_get_albums(self):
         result = self.service.get_albums(limit=20)

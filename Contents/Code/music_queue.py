@@ -1,9 +1,6 @@
-import util
 import constants
-import albums
-import artists
-import audio_tracks
-from music_info import MusicInfo
+
+from media_info import MediaInfo
 
 def append_controls(oc, name, thumb=None, **params):
     type = get_type(params)
@@ -27,10 +24,9 @@ def HandleAddToQueue(name, thumb, **params):
     type = get_type(params)
     id = params[type]
 
-    music_info = MusicInfo(type=type, id=id, name=name, thumb=thumb)
+    media_info = MediaInfo(type=type, id=id, name=name, thumb=thumb)
 
-    service.music_queue.add(music_info)
-    service.music_queue.save()
+    service.music_queue.add(media_info)
 
     return ObjectContainer(
         header=u'%s' % L(name),
@@ -42,10 +38,9 @@ def HandleRemoveFromQueue(name, thumb, **params):
     type = get_type(params)
     id = params[type]
 
-    music_info = MusicInfo(type=type, id=id, name=name, thumb=thumb)
+    media_info = MediaInfo(type=type, id=id, name=name, thumb=thumb)
 
-    service.music_queue.remove(music_info)
-    service.music_queue.save()
+    service.music_queue.remove(media_info)
 
     return ObjectContainer(
         header=u'%s' % L(name),
@@ -88,7 +83,7 @@ def GetQueue(title, filter=None):
                 key = Callback(albums.HandleDoubleAlbum, name=name, parent__id=id, thumb=thumb)
                 oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
 
-    util.add_search_music(oc)
+    search.add_search_music(oc)
 
     return oc
 

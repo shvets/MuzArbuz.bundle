@@ -1,54 +1,7 @@
+import sys
+import os
+
 from datetime import date
-
-import albums
-import artists
-import collections
-import audio_tracks
-
-@route(constants.PREFIX + '/search_music')
-def SearchMusic(query=None, page=1, **params):
-    page = int(page)
-
-    oc = ObjectContainer(title2=unicode(L('Music Search')))
-
-    response = service.search(q=query, limit=1, offset=0)
-
-    count1 = response['collection']['meta']['total_count']
-
-    if count1:
-        oc.add(DirectoryObject(
-            key=Callback(collections.SearchMusicCollections, title=L('Collections'), query=query, page=page),
-            title=unicode(L('Collections') + " (" + str(count1) + ")")
-        ))
-
-    count2 = response['artist_annotated']['meta']['total_count']
-
-    if count2:
-        oc.add(DirectoryObject(
-            key=Callback(artists.SearchMusicArtists, type='artist_annotated', title=L('Artists'), query=query, page=page),
-            title=unicode(L('Artists') + " (" + str(count2) + ")")
-        ))
-
-    count3 = response['album']['meta']['total_count']
-
-    if count3:
-        oc.add(DirectoryObject(
-            key=Callback(albums.SearchMusicAlbums, title=L('Albums'), query=query, page=page),
-            title=unicode(L('Albums') + " (" + str(count3) + ")")
-        ))
-
-    count4 = response['audio_track']['meta']['total_count']
-
-    if count4:
-        oc.add(DirectoryObject(
-            key=Callback(audio_tracks.SearchMusicAudioTracks, title=L('Audio Tracks'), query=query, page=page),
-            title=unicode(L('Audio Tracks') + " (" + str(count4) + ")")
-        ))
-
-    return oc
-
-def add_search_music(oc):
-    oc.add(InputDirectoryObject(key=Callback(SearchMusic), title=unicode(L("Search Music")), thumb=R(constants.SEARCH_ICON)))
 
 def add_pagination_to_response(response, page):
     page = int(page)
@@ -128,3 +81,10 @@ def no_contents(name=None):
         name = 'Error'
 
     return ObjectContainer(header=unicode(L(name)), message=unicode(L('No entries found')))
+
+def add_library(path):
+    lib_path = Core.storage.abs_path(Core.storage.join_path(Core.bundle_path, 'Contents', 'Code', path))
+
+    Log(Core.storage.join_path(Core.bundle_path, 'Contents', 'Code', path))
+
+    sys.path.append(os.path.abspath(os.path.join(lib_path)))

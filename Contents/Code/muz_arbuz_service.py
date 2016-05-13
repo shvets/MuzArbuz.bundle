@@ -4,7 +4,7 @@ import json
 
 from http_service import HttpService
 
-class MusicService(HttpService):
+class MuzArbuzService(HttpService):
     BASE_URL = "https://muzarbuz.com"
     API_URL = BASE_URL + "/api/v1"
     USER_AGENT = 'Plex User Agent'

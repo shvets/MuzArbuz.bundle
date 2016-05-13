@@ -1,0 +1,8 @@
+from muz_arbuz_service import MuzArbuzService
+from muz_arbuz_plex_storage import MuzArbuzPlexStorage
+
+class MuzArbuzPlexService(MuzArbuzService):
+     def __init__(self):
+        storage_name = Core.storage.abs_path(Core.storage.join_path(Core.bundle_path, 'Contents', 'muzarbuz.storage'))
+
+        self.music_queue = MuzArbuzPlexStorage(storage_name)
