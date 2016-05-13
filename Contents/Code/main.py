@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from media_info import MediaInfo
+import util
 import constants
+import pagination
+from flow_builder import FlowBuilder
+
+builder = FlowBuilder()
 
 @route(constants.PREFIX + '/albums_menu')
 def GetAlbumsMenu(title):
@@ -11,10 +17,10 @@ def GetAlbumsMenu(title):
             title=unicode(L('All Albums'))
     ))
     oc.add(DirectoryObject(
-            key=Callback(music_queue.GetQueue, filter='album', title=L('Favorite Albums')),
+            key=Callback(GetQueue, filter='album', title=L('Favorite Albums')),
             title=unicode(L('Favorite Albums'))))
     oc.add(DirectoryObject(
-            key=Callback(music_queue.GetQueue, filter='parent__id', title=L('Favorite Double Albums')),
+            key=Callback(GetQueue, filter='parent__id', title=L('Favorite Double Albums')),
             title=unicode(L('Favorite Double Albums'))))
 
     oc.add(InputDirectoryObject(
@@ -113,7 +119,7 @@ def HandleDoubleAlbum(name, thumb, **params):
         key = Callback(HandleAudioTracks, album=id, name=title, thumb=thumb)
         oc.add(DirectoryObject(key=key, title=unicode(title), thumb=thumb))
 
-    music_queue.append_controls(oc, name=name, thumb=thumb, **params)
+    service.queue.append_controls(oc, name=name, thumb=thumb, **params)
 
     return oc
 
@@ -140,7 +146,7 @@ def GetArtistsMenu(title):
             title=unicode(L('By Latin Letter'))
     ))
     oc.add(DirectoryObject(
-            key=Callback(music_queue.GetQueue, filter='artists', title=L('Favorite Artists')),
+            key=Callback(GetQueue, filter='artists', title=L('Favorite Artists')),
             title=unicode(L('Favorite Artists'))
     ))
 
@@ -257,7 +263,7 @@ def GetArtistMenu(id, title, thumb, **params):
 
     if count1 > 0:
         oc.add(DirectoryObject(
-            key=Callback(albums.HandleAlbums, title=unicode(L('Albums')) + " " + title, artists=id),
+            key=Callback(HandleAlbums, title=unicode(L('Albums')) + " " + title, artists=id),
             title=unicode(L('Albums') + ' (' + str(count1) + ')'),
             thumb=thumb
         ))
@@ -274,7 +280,7 @@ def GetArtistMenu(id, title, thumb, **params):
             thumb=thumb
         ))
 
-    music_queue.append_controls(oc, name=title, artists=id, thumb=thumb)
+    service.queue.append_controls(oc, name=title, artists=id, thumb=thumb)
 
     return oc
 
@@ -294,7 +300,7 @@ def GetCollectionsMenu(title):
             title=unicode(L('All Collections'))
     ))
     oc.add(DirectoryObject(
-            key=Callback(music_queue.GetQueue, filter='collection__id', title=L('Favorite Collections')),
+            key=Callback(GetQueue, filter='collection__id', title=L('Favorite Collections')),
             title=unicode(L('Favorite Collections'))
     ))
 
@@ -336,7 +342,7 @@ def HandleCollection(title, collection__id, thumb):
     key = Callback(HandleAudioTracks, name=title, collection__id=collection__id, thumb=thumb)
     oc.add(DirectoryObject(key=key, title=unicode(title), thumb=thumb))
 
-    music_queue.append_controls(oc, name=title, thumb=thumb, collection__id=collection__id)
+    service.queue.append_controls(oc, name=title, thumb=thumb, collection__id=collection__id)
 
     return oc
 
@@ -350,7 +356,7 @@ def SearchMusicCollections(title, query, page=1, **params):
 
     response = service.search_collection(q=query, limit=util.get_elements_per_page(), offset=offset)
 
-    for media in artists.BuildArtistsList(response['objects']):
+    for media in BuildArtistsList(response['objects']):
         oc.add(media)
 
     util.add_pagination_to_response(response, page)
@@ -375,11 +381,11 @@ def GetGenresMenu(title):
     ))
 
     oc.add(DirectoryObject(
-            key=Callback(music_queue.GetQueue, filter='genre__in', title=L('Favorite Genres')),
+            key=Callback(GetQueue, filter='genre__in', title=L('Favorite Genres')),
             title=unicode(L('Favorite Genres'))
     ))
 
-    search.add_search_music(oc)
+    add_search_music(oc)
 
     return oc
 
@@ -400,7 +406,7 @@ def HandleMusicGenres(title):
         key = Callback(HandleMusicGenre, title=title, thumb=thumb, genre__in=id)
         oc.add(DirectoryObject(key=key, title=unicode(title), thumb=thumb))
 
-        search.add_search_music(oc)
+        add_search_music(oc)
 
     return oc
 
@@ -408,12 +414,12 @@ def HandleMusicGenres(title):
 def HandleMusicGenre(title, genre__in, thumb):
     oc = ObjectContainer(title2=unicode(L(title)))
 
-    key = Callback(albums.HandleAlbums, title=title, genre__in=genre__in)
+    key = Callback(HandleAlbums, title=title, genre__in=genre__in)
     oc.add(DirectoryObject(key=key, title=unicode(title)))
 
-    music_queue.append_controls(oc, name=title, thumb=thumb, genre__in=genre__in)
+    service.queue.append_controls(oc, name=title, thumb=thumb, genre__in=genre__in)
 
-    search.add_search_music(oc)
+    add_search_music(oc)
 
     return oc
 
@@ -423,13 +429,13 @@ def SearchMusic(query=None, page=1, **params):
 
     oc = ObjectContainer(title2=unicode(L('Music Search')))
 
-    response = service.search(q=query, limit=1, offset=0)
+    response = search(q=query, limit=1, offset=0)
 
     count1 = response['collection']['meta']['total_count']
 
     if count1:
         oc.add(DirectoryObject(
-            key=Callback(collections.SearchMusicCollections, title=L('Collections'), query=query, page=page),
+            key=Callback(SearchMusicCollections, title=L('Collections'), query=query, page=page),
             title=unicode(L('Collections') + " (" + str(count1) + ")")
         ))
 
@@ -437,7 +443,7 @@ def SearchMusic(query=None, page=1, **params):
 
     if count2:
         oc.add(DirectoryObject(
-            key=Callback(artists.SearchMusicArtists, type='artist_annotated', title=L('Artists'), query=query, page=page),
+            key=Callback(SearchMusicArtists, type='artist_annotated', title=L('Artists'), query=query, page=page),
             title=unicode(L('Artists') + " (" + str(count2) + ")")
         ))
 
@@ -445,7 +451,7 @@ def SearchMusic(query=None, page=1, **params):
 
     if count3:
         oc.add(DirectoryObject(
-            key=Callback(albums.SearchMusicAlbums, title=L('Albums'), query=query, page=page),
+            key=Callback(SearchMusicAlbums, title=L('Albums'), query=query, page=page),
             title=unicode(L('Albums') + " (" + str(count3) + ")")
         ))
 
@@ -461,14 +467,6 @@ def SearchMusic(query=None, page=1, **params):
 
 def add_search_music(oc):
     oc.add(InputDirectoryObject(key=Callback(SearchMusic), title=unicode(L("Search Music")), thumb=R(constants.SEARCH_ICON)))
-
-import util
-import constants
-import music_queue
-import pagination
-from flow_builder import FlowBuilder
-
-builder = FlowBuilder()
 
 @route(constants.PREFIX + '/search_music_audio_tracks')
 def SearchMusicAudioTracks(title, query, page, **params):
@@ -523,7 +521,7 @@ def HandleAudioTracks(name, thumb, page=1, **params):
 
         oc.add(GetAudioTrack(path=url, name=unicode(title), thumb=thumb, artist=artist, format=format))
 
-    music_queue.append_controls(oc, name=name, thumb=thumb, **params)
+    service.queue.append_controls(oc, name=name, thumb=thumb, **params)
 
     util.add_pagination_to_response(response, page)
     pagination.append_controls(oc, response['data'], callback=HandleAudioTracks, name=name, thumb=thumb, page=page, **params)
@@ -560,6 +558,102 @@ def GetAudioTrack(path, name, thumb, artist, format, container=False):
         return oc
     else:
         return track
+
+@route(constants.PREFIX + '/add_to_queue')
+def HandleAddToQueue(name, thumb, **params):
+    type = get_type(params)
+    id = params[type]
+
+    media_info = MediaInfo(type=type, id=id, name=name, thumb=thumb)
+
+    service.queue.add(media_info)
+
+    return ObjectContainer(
+        header=u'%s' % L(name),
+        message=u'%s' % L('Media Added')
+    )
+
+@route(constants.PREFIX + '/remove_from_queue')
+def HandleRemoveFromQueue(name, thumb, **params):
+    type = get_type(params)
+    id = params[type]
+
+    media_info = MediaInfo(type=type, id=id, name=name, thumb=thumb)
+
+    service.queue.remove(media_info)
+
+    return ObjectContainer(
+        header=u'%s' % L(name),
+        message=u'%s' % L('Media Removed')
+    )
+
+@route(constants.PREFIX + '/queue')
+def GetQueue(title, filter=None):
+    oc = ObjectContainer(title2=unicode(L(title)))
+
+    for media in service.queue.data:
+        type = media['type']
+
+        if type == filter:
+            id = media['id']
+            name = media['name']
+
+            if 'thumb' in media:
+                thumb = media['thumb']
+            else:
+                thumb = 'thumb'
+
+            if filter == 'audio_tracks':
+                key = Callback(audio_tracks.HandleAudioTracks, album=id, name=name, thumb=thumb)
+                oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
+            elif filter == 'album':
+                key = Callback(audio_tracks.HandleAudioTracks, album=id, name=name, thumb=thumb)
+                oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
+            elif filter == 'artists':
+                key=Callback(artists.GetArtistMenu, id=id, title=L(name), thumb=thumb)
+                oc.add(DirectoryObject(key=key, title=unicode(L(name)), thumb=thumb
+            ))
+            elif filter == 'collection__id':
+                key = Callback(audio_tracks.HandleAudioTracks, collection__id=id, name=name, thumb=thumb)
+                oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
+            elif filter == 'genre__in':
+                key = Callback(HandleAlbums, title=name, genre__in=id)
+                oc.add(DirectoryObject(key=key, title=unicode(name)))
+            elif filter == 'parent__id':
+                key = Callback(HandleDoubleAlbum, name=name, parent__id=id, thumb=thumb)
+                oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
+
+    add_search_music(oc)
+
+    return oc
+
+def get_type(params):
+    if 'album' in params:
+        type = 'album'
+    elif 'collection__id' in params:
+        type = 'collection__id'
+    elif 'artists' in params:
+        type = 'artists'
+    elif 'audio_tracks' in params:
+        type = 'audio_tracks'
+    elif 'genre__in' in params:
+        type = 'genre__in'
+    elif 'parent__id' in params:
+        type = 'parent__id'
+    else:
+        type = None
+
+    return type
+
+def item_already_added_to_storage(type, id):
+    added = False
+
+    for media in service.queue.data:
+        if id == media['id']:
+            added = True
+            break
+
+    return added
 
 def MetadataObjectForURL(media_type, path, name, thumb, artist, format, url_items, player):
     metadata_object = builder.build_metadata_object(media_type=media_type, title=name)

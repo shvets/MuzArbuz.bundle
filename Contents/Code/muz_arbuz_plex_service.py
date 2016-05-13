@@ -5,4 +5,7 @@ class MuzArbuzPlexService(MuzArbuzService):
      def __init__(self):
         storage_name = Core.storage.abs_path(Core.storage.join_path(Core.bundle_path, 'Contents', 'muzarbuz.storage'))
 
-        self.music_queue = MuzArbuzPlexStorage(storage_name)
+        self.queue = MuzArbuzPlexStorage(storage_name)
+
+        self.queue.register_simple_type('author')
+        self.queue.register_simple_type('tracks')
