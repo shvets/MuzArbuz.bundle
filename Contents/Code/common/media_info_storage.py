@@ -20,7 +20,7 @@ class MediaInfoStorage(FileStorage):
             type = search_item['type']
 
             if item['path'] == search_item['path']:
-                if type in  self.simple_types:
+                if type in self.simple_types and item['type'] == search_item['type']:
                     found = item
 
                 elif type == 'season':

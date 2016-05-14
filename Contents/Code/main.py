@@ -63,7 +63,7 @@ def BuildAlbumsList(response):
                 'thumb': thumb,
                 'bitrate': "128"
             }
-            key = Callback(HandleTracks, **new_params)
+            key = Callback(HandleAlbum, **new_params)
         elif music_container:
             new_params = {
                 'type': 'double_album',
@@ -82,11 +82,15 @@ def BuildAlbumsList(response):
                 'thumb': thumb,
                 'bitrate': "128"
             }
-            key = Callback(HandleTracks, **new_params)
+            key = Callback(HandleAlbum, **new_params)
 
         list.append(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
 
     return list
+
+@route(constants.PREFIX + '/album')
+def HandleAlbum(**params):
+    return HandleTracks(**params)
 
 @route(constants.PREFIX + '/double_album')
 def HandleDoubleAlbum(operation=None, **params):
@@ -229,6 +233,7 @@ def HandleArtist(operation=None, **params):
                                    year__lte=util.get_end_music_year())
     count2 = int(response2['meta']['total_count'])
 
+    Log(count2)
     if count2 > 0:
         new_params = {
             'type': 'tracks',
@@ -602,7 +607,7 @@ def HandleContainer(**params):
     if type == 'artist':
         return HandleArtist(**params)
     elif type == 'album':
-        return HandleTracks(**params)
+        return HandleAlbum(**params)
     elif type == 'double_album':
         return HandleDoubleAlbum(**params)
     elif type == 'tracks':
