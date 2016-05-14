@@ -661,22 +661,6 @@ def ClearQueue(filter=None):
 
     return HandleQueue()
 
-@route(constants.PREFIX + '/history')
-def HandleHistory():
-    history_object = history.load_history()
-
-    oc = ObjectContainer(title2=unicode(L('History')))
-
-    if history_object:
-        for item in sorted(history_object.values(), key=lambda k: k['time'], reverse=True):
-            oc.add(DirectoryObject(
-                key=Callback(HandleContainer, **item),
-                title=unicode(item['name']),
-                thumb=item['thumb']
-            ))
-
-    return oc
-
 def MediaObjectsForURL(url_items, player):
     media_objects = []
 
