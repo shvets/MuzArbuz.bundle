@@ -29,7 +29,7 @@ def HandleAlbums(title, page=1, **params):
     response = service.get_albums(limit=limit, offset=offset,
                                   year__gte=util.get_start_music_year(),
                                   year__lte=util.get_end_music_year(),
-                                  **filter_params(params))
+                                  **service.filter_request_params(params))
 
     oc.title2 = unicode(L(title)) + ' (' + str(response['meta']['total_count']) + ')'
 
@@ -52,7 +52,7 @@ def BuildAlbumsList(response):
 
     for media in response:
         id = media['id']
-        title = media['title']
+        name = media['title']
         thumb = media['thumbnail']
 
         if 'is_seria' in media:
@@ -65,7 +65,7 @@ def BuildAlbumsList(response):
                 'type': 'album',
                 'path': id,
                 'album': id,
-                'name': title,
+                'name': name,
                 'thumb': thumb,
                 'bitrate': "128"
             }
@@ -75,7 +75,7 @@ def BuildAlbumsList(response):
                 'type': 'double_album',
                 'path': id,
                 'parent__id': id,
-                'name': title,
+                'name': name,
                 'thumb': thumb
             }
             key = Callback(HandleDoubleAlbum, **new_params)
@@ -84,13 +84,13 @@ def BuildAlbumsList(response):
                 'type': 'album',
                 'path': id,
                 'album': id,
-                'name': title,
+                'name': name,
                 'thumb': thumb,
                 'bitrate': "128"
             }
             key = Callback(HandleTracks, **new_params)
 
-        list.append(DirectoryObject(key=key, title=unicode(title), thumb=thumb))
+        list.append(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
 
     return list
 
@@ -108,22 +108,22 @@ def HandleDoubleAlbum(operation=None, **params):
     response = service.get_albums(limit=util.get_elements_per_page(),
                                   year__gte=util.get_start_music_year(),
                                   year__lte=util.get_end_music_year(),
-                                  **filter_params(params))
+                                  **service.filter_request_params(params))
 
     for media in response['objects']:
         id = media['id']
-        title = media['title']
+        name = media['title']
         thumb = media['thumbnail']
 
         new_params = {
             'type': 'album',
             'album': id,
             'path': id,
-            'name': title,
+            'name': name,
             'thumb': thumb
         }
         key = Callback(HandleTracks, **new_params)
-        oc.add(DirectoryObject(key=key, title=unicode(title), thumb=thumb))
+        oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
 
     service.queue.append_controls(oc, HandleDoubleAlbum, media_info)
 
@@ -177,6 +177,7 @@ def HandleLetter(title, page=1, **params):
 
 @route(constants.PREFIX + '/artists')
 def HandleArtists(title, page=1, **params):
+    Log(params)
     oc = ObjectContainer(title2=unicode(L(title)))
 
     page = int(page)
@@ -206,19 +207,19 @@ def BuildArtistsList(response):
 
     for media in response:
         id = media['id']
-        title = media['title']
+        name = media['title']
         thumb = media['thumbnail']
 
         params = {
             'type': 'artist',
             'path': id,
             'id': id,
-            'title': L(title),
+            'name': L(name),
             'thumb': thumb
         }
         list.append(DirectoryObject(
             key=Callback(HandleArtist, **params),
-            title=unicode(L(title)),
+            title=unicode(L(name)),
             thumb=thumb
         ))
 
@@ -226,7 +227,7 @@ def BuildArtistsList(response):
 
 @route(constants.PREFIX + '/artist')
 def HandleArtist(operation=None, **params):
-    oc = ObjectContainer(title2=unicode(L("Artist") + " " + params['title']))
+    oc = ObjectContainer(title2=unicode(L("Artist") + " " + params['name']))
 
     media_info = MediaInfo(**params)
 
@@ -242,7 +243,7 @@ def HandleArtist(operation=None, **params):
 
     if count1 > 0:
         new_params = {
-            'title': unicode(L('Albums')) + " " + params['title'],
+            'title': unicode(L('Albums')) + " " + params['name'],
             'artists': params['id']
         }
         oc.add(DirectoryObject(
@@ -258,10 +259,10 @@ def HandleArtist(operation=None, **params):
 
     if count2 > 0:
         new_params = {
-            'type': 'artist',
+            'type': 'tracks',
             'artist': params['id'],
             'path': params['id'],
-            'name': L('Audio Tracks') + " " + params['title'],
+            'name': L('Audio Tracks') + " " + params['name'],
             'thumb': params['thumb']
         }
         oc.add(DirectoryObject(
@@ -275,7 +276,7 @@ def HandleArtist(operation=None, **params):
     return oc
 
 @route(constants.PREFIX + '/collections')
-def HandleCollections(title, page=1, **params):
+def HandleCollections(title, page=1):
     oc = ObjectContainer()
 
     page = int(page)
@@ -344,7 +345,7 @@ def HandleGenres(title):
         title = media['title']
         thumb = 'thumb'
 
-        key = Callback(HandleMusicGenre, title=title, thumb=thumb, genre__in=id)
+        key = Callback(HandleGenre, title=title, thumb=thumb, genre__in=id)
         oc.add(DirectoryObject(key=key, title=unicode(title), thumb=thumb))
 
         oc.add(InputDirectoryObject(key=Callback(HandleSearch), title=unicode(L("Search Music")),
@@ -352,8 +353,8 @@ def HandleGenres(title):
 
     return oc
 
-@route(constants.PREFIX + '/music_genre')
-def HandleMusicGenre(operation=None, **params):
+@route(constants.PREFIX + '/genre')
+def HandleGenre(operation=None, **params):
     media_info = MediaInfo(**params)
 
     if operation == 'add':
@@ -377,6 +378,8 @@ def HandleMusicGenre(operation=None, **params):
 def HandleTracks(operation=None, page=1, **params):
     media_info = MediaInfo(**params)
 
+    Log(params)
+
     if 'album' in params:
         media_info['path'] = params['album']
 
@@ -391,7 +394,8 @@ def HandleTracks(operation=None, page=1, **params):
     limit = util.get_elements_per_page()
     offset = (page-1)*limit
 
-    response = service.get_tracks(limit=util.get_elements_per_page(), offset=offset, **filter_params(params))
+    response = service.get_tracks(limit=util.get_elements_per_page(), offset=offset,
+                                  **service.filter_request_params(params))
 
     for media in response['objects']:
         title = media['title']
@@ -424,12 +428,6 @@ def HandleTracks(operation=None, page=1, **params):
     pagination.append_controls(oc, response['data'], callback=HandleTracks, page=page, **params)
 
     return oc
-
-
-VALID_PARAMETERS = ['album', 'artists', 'collection__id', 'parent__id']
-
-def filter_params(params):
-    return dict((key, value) for key, value in params.iteritems() if key in VALID_PARAMETERS)
 
 @route(constants.PREFIX + '/search')
 def HandleSearch(query=None, page=1):
@@ -620,81 +618,14 @@ def HandleContainer(**params):
         return HandleArtist(**params)
     elif type == 'album':
         return HandleTracks(**params)
+    elif type == 'double_album':
+        return HandleDoubleAlbum(**params)
+    elif type == 'tracks':
+        return HandleTracks(**params)
     elif type == 'collection__id':
         return HandleTracks(**params)
     elif type == 'genre__in':
         return HandleAlbums(**params)
-    elif type == 'double_album':
-        return HandleDoubleAlbum(**params)
-
-# @route(constants.PREFIX + '/queue')
-# def GetQueue(title, filter=None):
-#     oc = ObjectContainer(title2=unicode(L(title)))
-#
-#     for media in service.queue.data:
-#         type = media['type']
-#
-#         if type == filter:
-#             id = media['id']
-#             name = media['name']
-#
-#             if 'thumb' in media:
-#                 thumb = media['thumb']
-#             else:
-#                 thumb = 'thumb'
-#
-#             if filter == 'audio_tracks':
-#                 key = Callback(audio_tracks.HandleTracks, album=id, name=name, thumb=thumb)
-#                 oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
-#             elif filter == 'album':
-#                 key = Callback(audio_tracks.HandleTracks, album=id, name=name, thumb=thumb)
-#                 oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
-#             elif filter == 'artists':
-#                 key=Callback(artists.GetArtistMenu, id=id, title=L(name), thumb=thumb)
-#                 oc.add(DirectoryObject(key=key, title=unicode(L(name)), thumb=thumb
-#             ))
-#             elif filter == 'collection__id':
-#                 key = Callback(audio_tracks.HandleTracks, collection__id=id, name=name, thumb=thumb)
-#                 oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
-#             elif filter == 'genre__in':
-#                 key = Callback(HandleAlbums, title=name, genre__in=id)
-#                 oc.add(DirectoryObject(key=key, title=unicode(name)))
-#             elif filter == 'parent__id':
-#                 key = Callback(HandleDoubleAlbum, name=name, parent__id=id, thumb=thumb)
-#                 oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
-#
-# oc.add(InputDirectoryObject(key=Callback(HandleSearch), title=unicode(L("Search Music")),
-#                             thumb=R(constants.SEARCH_ICON)))
-#
-#     return oc
-#
-# def get_type(params):
-#     if 'album' in params:
-#         type = 'album'
-#     elif 'collection__id' in params:
-#         type = 'collection__id'
-#     elif 'artists' in params:
-#         type = 'artists'
-#     elif 'audio_tracks' in params:
-#         type = 'audio_tracks'
-#     elif 'genre__in' in params:
-#         type = 'genre__in'
-#     elif 'parent__id' in params:
-#         type = 'parent__id'
-#     else:
-#         type = None
-#
-#     return type
-#
-# def item_already_added_to_storage(type, id):
-#     added = False
-#
-#     for media in service.queue.data:
-#         if id == media['id']:
-#             added = True
-#             break
-#
-#     return added
 
 @route(constants.PREFIX + '/queue')
 def HandleQueue(filter=None):
@@ -717,15 +648,26 @@ def HandleQueue(filter=None):
 
     if len(service.queue.data) > 0:
         oc.add(DirectoryObject(
-            key=Callback(ClearQueue),
+            key=Callback(ClearQueue, filter=filter),
             title=unicode(L("Clear Queue"))
         ))
 
     return oc
 
 @route(constants.PREFIX + '/clear_queue')
-def ClearQueue():
-    service.queue.clear()
+def ClearQueue(filter=None):
+    if not filter:
+        service.queue.clear()
+    else:
+        indices_to_delete = []
+
+        for index, media_info in enumerate(service.queue.data):
+            if media_info['type'] == filter:
+                indices_to_delete.append(index)
+
+        for index in indices_to_delete:
+            del service.queue.data[index]
+
 
     return HandleQueue()
 

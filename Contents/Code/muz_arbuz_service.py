@@ -9,6 +9,8 @@ class MuzArbuzService(HttpService):
     API_URL = BASE_URL + "/api/v1"
     USER_AGENT = 'Plex User Agent'
 
+    VALID_PARAMETERS = ['album', 'artists', 'collection__id', 'parent__id', 'genre__in']
+
     def get_albums(self, **params):
         url = self.build_url(self.API_URL + "/album", **params)
 
@@ -66,6 +68,9 @@ class MuzArbuzService(HttpService):
         url = self.build_url(self.API_URL + "/audio_track/search/", **params)
 
         return self.api_request(url, **params)
+
+    def filter_request_params(self, params):
+        return dict((key, value) for key, value in params.iteritems() if key in self.VALID_PARAMETERS)
 
     def api_request(self, url, **params):
         headers = {}
