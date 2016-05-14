@@ -578,23 +578,6 @@ def HandleTrack(container=False, **params):
     else:
         return track
 
-def AudioMetadataObjectForURL(media_info, url_items, player):
-    metadata_object = builder.build_metadata_object(media_type=media_info['type'], title=media_info['name'])
-
-    metadata_object.key = Callback(HandleTrack, container=True, **media_info)
-    metadata_object.rating_key = unicode(media_info['name'])
-    metadata_object.thumb = media_info['thumb']
-
-    if 'duration' in media_info:
-        metadata_object.duration = int(media_info['duration']) * 1000
-
-    if 'artist' in media_info:
-        metadata_object.artist = media_info['artist']
-
-    metadata_object.items.extend(MediaObjectsForURL(url_items, player))
-
-    return metadata_object
-
 @route(constants.PREFIX + '/container')
 def HandleContainer(**params):
     type = params['type']
@@ -660,6 +643,24 @@ def ClearQueue(filter=None):
 
 
     return HandleQueue()
+
+def AudioMetadataObjectForURL(media_info, url_items, player):
+    metadata_object = builder.build_metadata_object(media_type=media_info['type'], title=media_info['name'])
+
+    metadata_object.key = Callback(HandleTrack, container=True, **media_info)
+    metadata_object.rating_key = unicode(media_info['name'])
+    metadata_object.thumb = media_info['thumb']
+    metadata_object.art = media_info['thumb']
+
+    if 'duration' in media_info:
+        metadata_object.duration = int(media_info['duration']) * 1000
+
+    if 'artist' in media_info:
+        metadata_object.artist = media_info['artist']
+
+    metadata_object.items.extend(MediaObjectsForURL(url_items, player))
+
+    return metadata_object
 
 def MediaObjectsForURL(url_items, player):
     media_objects = []
