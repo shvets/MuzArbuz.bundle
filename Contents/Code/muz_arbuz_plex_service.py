@@ -10,4 +10,6 @@ class MuzArbuzPlexService(MuzArbuzService):
         self.queue.register_simple_type('album')
         self.queue.register_simple_type('double_album')
         self.queue.register_simple_type('artist')
+        self.queue.register_simple_type('collection')
+        self.queue.register_simple_type('genre')
         self.queue.register_simple_type('tracks')

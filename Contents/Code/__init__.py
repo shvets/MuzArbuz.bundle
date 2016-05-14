@@ -69,11 +69,11 @@ def HandleArtistsMenu(title):
             title=unicode(L('All Artists'))
     ))
     oc.add(DirectoryObject(
-            key=Callback(main.GetCyrillicLettersMenu, title=L('By Letter')),
+            key=Callback(GetCyrillicLettersMenu, title=L('By Letter')),
             title=unicode(L('By Letter'))
     ))
     oc.add(DirectoryObject(
-            key=Callback(main.GetLatinLettersMenu, title=L('By Latin Letter')),
+            key=Callback(GetLatinLettersMenu, title=L('By Latin Letter')),
             title=unicode(L('By Latin Letter'))
     ))
     oc.add(DirectoryObject(
@@ -98,7 +98,7 @@ def HandleCollectionsMenu(title):
             title=unicode(L('All Collections'))
     ))
     oc.add(DirectoryObject(
-            key=Callback(main.HandleQueue, title=L('Favorite Collections')),
+            key=Callback(main.HandleQueue, filter='collection'),
             title=unicode(L('Favorite Collections'))
     ))
 
@@ -120,11 +120,33 @@ def HandleGenresMenu(title):
     ))
 
     oc.add(DirectoryObject(
-            key=Callback(main.HandleQueue, title=L('Favorite Genres')),
+            key=Callback(main.HandleQueue, filter='genre'),
             title=unicode(L('Favorite Genres'))
     ))
 
     oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=unicode(L("Search Music")),
                                 thumb=R(constants.SEARCH_ICON)))
+
+    return oc
+
+@route(constants.PREFIX + '/cyrillic_letters_menu')
+def GetCyrillicLettersMenu(title):
+    oc = ObjectContainer(title2=unicode(L(title)))
+
+    for letter in service.CYRILLIC_LETTERS:
+        name = L('Letter') + ' ' + letter
+
+        oc.add(DirectoryObject(key=Callback(main.HandleLetter, title=name, title__istartswith=letter), title=unicode(letter)))
+
+    return oc
+
+@route(constants.PREFIX + '/latin_letters_menu')
+def GetLatinLettersMenu(title):
+    oc = ObjectContainer(title2=unicode(L(title)))
+
+    for letter in service.LATIN_LETTERS:
+        name = L('Letter') + ' ' + letter
+
+        oc.add(DirectoryObject(key=Callback(main.HandleLetter, title=name, title__istartswith=letter), title=unicode(letter)))
 
     return oc

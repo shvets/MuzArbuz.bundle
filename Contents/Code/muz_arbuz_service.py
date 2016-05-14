@@ -11,6 +11,12 @@ class MuzArbuzService(HttpService):
 
     VALID_PARAMETERS = ['album', 'artists', 'collection__id', 'parent__id', 'genre__in']
 
+    CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С',
+                        'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я']
+
+    LATIN_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+                     'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+
     def get_albums(self, **params):
         url = self.build_url(self.API_URL + "/album", **params)
 

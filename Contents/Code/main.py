@@ -12,12 +12,6 @@ service = MuzArbuzPlexService()
 
 builder = FlowBuilder()
 
-CYRILLIC_LETTERS = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С',
-                    'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я']
-
-LATIN_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
-                 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-
 @route(constants.PREFIX + '/albums')
 def HandleAlbums(title, page=1, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
@@ -126,28 +120,6 @@ def HandleDoubleAlbum(operation=None, **params):
         oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
 
     service.queue.append_controls(oc, HandleDoubleAlbum, media_info)
-
-    return oc
-
-@route(constants.PREFIX + '/cyrillic_letters_menu')
-def GetCyrillicLettersMenu(title):
-    oc = ObjectContainer(title2=unicode(L(title)))
-
-    for letter in CYRILLIC_LETTERS:
-        name = L('Letter') + ' ' + letter
-
-        oc.add(DirectoryObject(key=Callback(HandleLetter, title=name, title__istartswith=letter), title=unicode(letter)))
-
-    return oc
-
-@route(constants.PREFIX + '/latin_letters_menu')
-def GetLatinLettersMenu(title):
-    oc = ObjectContainer(title2=unicode(L(title)))
-
-    for letter in LATIN_LETTERS:
-        name = L('Letter') + ' ' + letter
-
-        oc.add(DirectoryObject(key=Callback(HandleLetter, title=name, title__istartswith=letter), title=unicode(letter)))
 
     return oc
 
@@ -288,11 +260,17 @@ def HandleCollections(title, page=1):
     oc.title2 = unicode(L('Collections')) + ' (' + str(response['meta']['total_count']) + ')'
 
     for media in response['objects']:
-        id = media['id']
         name = media['title']
         thumb = media['thumbnail']
 
-        key = Callback(HandleCollection, collection__id=id, title=name, thumb=thumb)
+        new_params = {
+            'type': 'collection',
+            'path': media['id'],
+            'collection__id': media['id'],
+            'name': name,
+            'thumb': thumb
+        }
+        key = Callback(HandleCollection, **new_params)
         oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
 
     oc.add(InputDirectoryObject(
@@ -315,17 +293,17 @@ def HandleCollection(operation=None, **params):
     elif operation == 'remove':
         service.queue.remove(media_info)
 
-    oc = ObjectContainer(title2=unicode(L(params['title'])))
+    oc = ObjectContainer(title2=unicode(L(params['name'])))
 
     new_params = {
-        'type': 'collection',
+        'type': 'tracks',
         'collection__id': params['collection__id'],
         'path': params['collection__id'],
-        'name': params['title'],
+        'name': params['name'],
         'thumb': params['thumb']
     }
     key = Callback(HandleTracks, **new_params)
-    oc.add(DirectoryObject(key=key, title=unicode(params['title']), thumb=params['thumb']))
+    oc.add(DirectoryObject(key=key, title=unicode(params['name']), thumb=params['thumb']))
 
     service.queue.append_controls(oc, HandleCollection, media_info)
 
@@ -342,11 +320,18 @@ def HandleGenres(title):
 
     for media in response['objects']:
         id = media['id']
-        title = media['title']
-        thumb = 'thumb'
+        name = media['title']
+        thumb = None
 
-        key = Callback(HandleGenre, title=title, thumb=thumb, genre__in=id)
-        oc.add(DirectoryObject(key=key, title=unicode(title), thumb=thumb))
+        new_params = {
+            'type': 'genre',
+            'path': id,
+            'name': name,
+            'thumb': thumb,
+            'genre__in': id
+        }
+        key = Callback(HandleGenre, **new_params)
+        oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
 
         oc.add(InputDirectoryObject(key=Callback(HandleSearch), title=unicode(L("Search Music")),
                                     thumb=R(constants.SEARCH_ICON)))
@@ -362,12 +347,12 @@ def HandleGenre(operation=None, **params):
     elif operation == 'remove':
         service.queue.remove(media_info)
 
-    oc = ObjectContainer(title2=unicode(L(params['title'])))
+    oc = ObjectContainer(title2=unicode(L(params['name'])))
 
-    key = Callback(HandleAlbums, title=params['title'], genre__in=params['genre__in'])
-    oc.add(DirectoryObject(key=key, title=unicode(params['title'])))
+    key = Callback(HandleAlbums, title=params['name'], genre__in=params['genre__in'])
+    oc.add(DirectoryObject(key=key, title=unicode(params['name'])))
 
-    service.queue.append_controls(oc, HandleMusicGenre, media_info)
+    service.queue.append_controls(oc, HandleGenre, media_info)
 
     oc.add(InputDirectoryObject(key=Callback(HandleSearch), title=unicode(L("Search Music")),
                                 thumb=R(constants.SEARCH_ICON)))
@@ -622,10 +607,10 @@ def HandleContainer(**params):
         return HandleDoubleAlbum(**params)
     elif type == 'tracks':
         return HandleTracks(**params)
-    elif type == 'collection__id':
-        return HandleTracks(**params)
-    elif type == 'genre__in':
-        return HandleAlbums(**params)
+    elif type == 'collection':
+        return HandleCollection(**params)
+    elif type == 'genre':
+        return HandleGenre(**params)
 
 @route(constants.PREFIX + '/queue')
 def HandleQueue(filter=None):
@@ -646,7 +631,12 @@ def HandleQueue(filter=None):
                 thumb=thumb
             ))
 
-    if len(service.queue.data) > 0:
+    if filter:
+        records = [item for item in service.queue.data if item['type'] == filter]
+    else:
+        records = service.queue.data
+
+    if len(records) > 0:
         oc.add(DirectoryObject(
             key=Callback(ClearQueue, filter=filter),
             title=unicode(L("Clear Queue"))
