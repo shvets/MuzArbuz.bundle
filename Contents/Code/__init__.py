@@ -23,11 +23,118 @@ def MainMenu():
 
     oc = ObjectContainer(title2=unicode(L('Music')))
 
-    oc.add(DirectoryObject(key=Callback(main.GetAlbumsMenu, title=L('Albums')), title=unicode(L('Albums'))))
-    oc.add(DirectoryObject(key=Callback(main.GetArtistsMenu, title=L('Artists')), title=unicode(L('Artists'))))
-    oc.add(DirectoryObject(key=Callback(main.GetCollectionsMenu, title=L('Collections')), title=unicode(L('Collections'))))
-    oc.add(DirectoryObject(key=Callback(main.GetGenresMenu, title=L('Genres')), title=unicode(L('Genres'))))
+    oc.add(DirectoryObject(key=Callback(HandleAlbumsMenu, title=L('Albums')), title=unicode(L('Albums'))))
+    oc.add(DirectoryObject(key=Callback(HandleArtistsMenu, title=L('Artists')), title=unicode(L('Artists'))))
+    oc.add(DirectoryObject(key=Callback(HandleCollectionsMenu, title=L('Collections')), title=unicode(L('Collections'))))
+    oc.add(DirectoryObject(key=Callback(HandleGenresMenu, title=L('Genres')), title=unicode(L('Genres'))))
 
-    main.add_search_music(oc)
+    oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=unicode(L("Search Music")),
+                                thumb=R(constants.SEARCH_ICON)))
+
+    return oc
+
+@route(constants.PREFIX + '/albums_menu')
+def HandleAlbumsMenu(title):
+    oc = ObjectContainer(title2=unicode(L(title)))
+
+    oc.add(DirectoryObject(
+            key=Callback(main.HandleAlbums, title=L('All Albums')),
+            title=unicode(L('All Albums'))
+    ))
+
+    new_params = {
+        'filter': 'album',
+        'name': L('Favorite Albums'),
+        'title': L('Favorite Albums'),
+        'thumb': None
+    }
+    oc.add(DirectoryObject(
+            key=Callback(main.HandleTracks, **new_params),
+            title=unicode(L('Favorite Albums'))))
+
+    new_params = {
+        'filter': 'parent__id',
+        'name': L('Favorite Double Albums'),
+        'title': L('Favorite Double Albums'),
+        'thumb': None
+    }
+    oc.add(DirectoryObject(
+            key=Callback(main.HandleDoubleAlbum, **new_params),
+            title=unicode(L('Favorite Double Albums'))))
+
+    oc.add(InputDirectoryObject(
+            key=Callback(main.SearchAlbums, title=unicode(L("Albums Search"))),
+            title=unicode(L("Albums Search")),
+            thumb=R(constants.SEARCH_ICON)
+    ))
+
+    return oc
+
+@route(constants.PREFIX + '/artists_menu')
+def HandleArtistsMenu(title):
+    oc = ObjectContainer(title2=unicode(L(title)))
+
+    oc.add(DirectoryObject(
+            key=Callback(main.HandleArtists, title=L('All Artists')),
+            title=unicode(L('All Artists'))
+    ))
+    oc.add(DirectoryObject(
+            key=Callback(main.GetCyrillicLettersMenu, title=L('By Letter')),
+            title=unicode(L('By Letter'))
+    ))
+    oc.add(DirectoryObject(
+            key=Callback(main.GetLatinLettersMenu, title=L('By Latin Letter')),
+            title=unicode(L('By Latin Letter'))
+    ))
+    oc.add(DirectoryObject(
+            key=Callback(main.HandleArtists, title=L('Favorite Artists')),
+            title=unicode(L('Favorite Artists'))
+    ))
+
+    oc.add(InputDirectoryObject(
+        key=Callback(main.SearchArtists, title=unicode(L("Artists Search"))),
+        title=unicode(L("Artists Search")),
+        thumb=R(constants.SEARCH_ICON)
+    ))
+
+    return oc
+
+@route(constants.PREFIX + '/collections_menu')
+def HandleCollectionsMenu(title):
+    oc = ObjectContainer(title2=unicode(L(title)))
+
+    oc.add(DirectoryObject(
+            key=Callback(main.HandleCollections, title=L('All Collections')),
+            title=unicode(L('All Collections'))
+    ))
+    oc.add(DirectoryObject(
+            key=Callback(main.HandleTracks, title=L('Favorite Collections')),
+            title=unicode(L('Favorite Collections'))
+    ))
+
+    oc.add(InputDirectoryObject(
+        key=Callback(main.SearchCollections, title=unicode(L("Collections Search"))),
+        title=unicode(L("Collections Search")),
+        thumb=R(constants.SEARCH_ICON)
+    ))
+
+    return oc
+
+@route(constants.PREFIX + '/genres_menu')
+def HandleGenresMenu(title):
+    oc = ObjectContainer(title2=unicode(L(title)))
+
+    oc.add(DirectoryObject(
+            key=Callback(main.HandleGenres, title=L('All Genres')),
+            title=unicode(L('All Genres'))
+    ))
+
+    oc.add(DirectoryObject(
+            key=Callback(main.HandleAlbums, title=L('Favorite Genres')),
+            title=unicode(L('Favorite Genres'))
+    ))
+
+    oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=unicode(L("Search Music")),
+                                thumb=R(constants.SEARCH_ICON)))
 
     return oc

@@ -82,6 +82,9 @@ def no_contents(name=None):
 
     return ObjectContainer(header=unicode(L(name)), message=unicode(L('No entries found')))
 
+def sanitize(name):
+    return unicode(name[0:35])
+
 def add_library(path):
     lib_path = Core.storage.abs_path(Core.storage.join_path(Core.bundle_path, 'Contents', 'Code', path))
 
