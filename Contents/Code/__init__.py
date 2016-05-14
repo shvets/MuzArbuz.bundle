@@ -28,7 +28,6 @@ def MainMenu():
     oc.add(DirectoryObject(key=Callback(HandleCollectionsMenu, title=L('Collections')), title=unicode(L('Collections'))))
     oc.add(DirectoryObject(key=Callback(HandleGenresMenu, title=L('Genres')), title=unicode(L('Genres'))))
     oc.add(DirectoryObject(key=Callback(main.HandleQueue), title=unicode(L("Queue"))))
-    oc.add(DirectoryObject(key=Callback(main.ClearQueue), title=unicode(L("Clear Queue"))))
 
     oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=unicode(L("Search Music")),
                                 thumb=R(constants.SEARCH_ICON)))

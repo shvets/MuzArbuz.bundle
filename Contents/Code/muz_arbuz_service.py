@@ -20,32 +20,32 @@ class MuzArbuzService(HttpService):
     def get_albums(self, **params):
         url = self.build_url(self.API_URL + "/album", **params)
 
-        return self.api_request(url, **params)
+        return self.api_request(url)
 
     def get_tracks(self, **params):
         url = self.build_url(self.API_URL + "/audio_track", **params)
 
-        return self.api_request(url, **params)
+        return self.api_request(url)
 
     def get_artists(self, **params):
         url = self.build_url(self.API_URL + "/artist", **params)
 
-        return self.api_request(url, **params)
+        return self.api_request(url)
 
     def get_artist_annotated(self, **params):
         url = self.build_url(self.API_URL + "/artist_annotated", **params)
 
-        return self.api_request(url, **params)
+        return self.api_request(url)
 
     def get_collections(self, **params):
         url = self.build_url(self.API_URL + "/collection", **params)
 
-        return self.api_request(url, **params)
+        return self.api_request(url)
 
     def get_genres(self, **params):
         url = self.build_url(self.API_URL + "/genre", **params)
 
-        return self.api_request(url, **params)
+        return self.api_request(url)
 
     def search(self, limit=0, offset=0, **params):
         return {
@@ -58,27 +58,44 @@ class MuzArbuzService(HttpService):
     def search_collection(self, **params):
         url = self.build_url(self.API_URL + "/collection/search/", **params)
 
-        return self.api_request(url, **params)
+        return self.api_request(url)
 
     def search_artist_annotated(self, **params):
         url = self.build_url(self.API_URL + "/artist_annotated/search/", **params)
 
-        return self.api_request(url, **params)
+        return self.api_request(url)
 
     def search_album(self, **params):
         url = self.build_url(self.API_URL + "/album/search/", **params)
 
-        return self.api_request(url, **params)
+        return self.api_request(url)
 
     def search_audio_track(self, **params):
         url = self.build_url(self.API_URL + "/audio_track/search/", **params)
 
-        return self.api_request(url, **params)
+        return self.api_request(url)
 
     def filter_request_params(self, params):
         return dict((key, value) for key, value in params.iteritems() if key in self.VALID_PARAMETERS)
 
-    def api_request(self, url, **params):
+    def add_pagination_to_response(self, response, page, per_page):
+        page = int(page)
+
+        pages = float(response['meta']['total_count']) / float(per_page)
+
+        if pages > int(pages):
+            pages = int(pages) + 1
+        else:
+            pages = int(pages)
+
+        response['data'] = {'pagination': {
+            'page': page,
+            'pages': pages,
+            'has_next': page < pages,
+            'has_previous': page > 1
+        }}
+
+    def api_request(self, url):
         headers = {}
 
         headers['User-agent'] = self.USER_AGENT

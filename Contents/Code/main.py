@@ -36,7 +36,7 @@ def HandleAlbums(title, page=1, **params):
             thumb=R(constants.SEARCH_ICON)
     ))
 
-    util.add_pagination_to_response(response, page)
+    service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=HandleAlbums, title=title, page=page, **params)
 
     return oc
@@ -57,7 +57,7 @@ def BuildAlbumsList(response):
         if 'album' in media:
             new_params = {
                 'type': 'album',
-                'path': id,
+                'id': id,
                 'album': id,
                 'name': name,
                 'thumb': thumb,
@@ -67,7 +67,7 @@ def BuildAlbumsList(response):
         elif music_container:
             new_params = {
                 'type': 'double_album',
-                'path': id,
+                'id': id,
                 'parent__id': id,
                 'name': name,
                 'thumb': thumb
@@ -76,7 +76,7 @@ def BuildAlbumsList(response):
         else:
             new_params = {
                 'type': 'album',
-                'path': id,
+                'id': id,
                 'album': id,
                 'name': name,
                 'thumb': thumb,
@@ -116,7 +116,7 @@ def HandleDoubleAlbum(operation=None, **params):
         new_params = {
             'type': 'album',
             'album': id,
-            'path': id,
+            'id': id,
             'name': name,
             'thumb': thumb
         }
@@ -140,7 +140,7 @@ def HandleLetter(title, page=1, **params):
     for artist in BuildArtistsList(response['objects']):
         oc.add(artist)
 
-    util.add_pagination_to_response(response, page)
+    service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=HandleLetter, title=title, page=page, **params)
 
     oc.add(InputDirectoryObject(
@@ -153,7 +153,6 @@ def HandleLetter(title, page=1, **params):
 
 @route(constants.PREFIX + '/artists')
 def HandleArtists(title, page=1, **params):
-    Log(params)
     oc = ObjectContainer(title2=unicode(L(title)))
 
     page = int(page)
@@ -167,7 +166,7 @@ def HandleArtists(title, page=1, **params):
     for artist in BuildArtistsList(response['objects']):
         oc.add(artist)
 
-    util.add_pagination_to_response(response, page)
+    service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=HandleArtists, title=title, page=page)
 
     oc.add(InputDirectoryObject(
@@ -188,7 +187,6 @@ def BuildArtistsList(response):
 
         params = {
             'type': 'artist',
-            'path': id,
             'id': id,
             'name': L(name),
             'thumb': thumb
@@ -233,12 +231,11 @@ def HandleArtist(operation=None, **params):
                                    year__lte=util.get_end_music_year())
     count2 = int(response2['meta']['total_count'])
 
-    Log(count2)
     if count2 > 0:
         new_params = {
             'type': 'tracks',
             'artist': params['id'],
-            'path': params['id'],
+            'id': params['id'],
             'name': L('Audio Tracks') + " " + params['name'],
             'thumb': params['thumb']
         }
@@ -270,7 +267,7 @@ def HandleCollections(title, page=1):
 
         new_params = {
             'type': 'collection',
-            'path': media['id'],
+            'id': media['id'],
             'collection__id': media['id'],
             'name': name,
             'thumb': thumb
@@ -284,7 +281,7 @@ def HandleCollections(title, page=1):
         thumb=R(constants.SEARCH_ICON)
     ))
 
-    util.add_pagination_to_response(response, page)
+    service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=HandleCollections, title=title, page=page)
 
     return oc
@@ -303,7 +300,7 @@ def HandleCollection(operation=None, **params):
     new_params = {
         'type': 'tracks',
         'collection__id': params['collection__id'],
-        'path': params['collection__id'],
+        'id': params['collection__id'],
         'name': params['name'],
         'thumb': params['thumb']
     }
@@ -330,7 +327,7 @@ def HandleGenres(title):
 
         new_params = {
             'type': 'genre',
-            'path': id,
+            'id': id,
             'name': name,
             'thumb': thumb,
             'genre__in': id
@@ -368,10 +365,8 @@ def HandleGenre(operation=None, **params):
 def HandleTracks(operation=None, page=1, **params):
     media_info = MediaInfo(**params)
 
-    Log(params)
-
     if 'album' in params:
-        media_info['path'] = params['album']
+        media_info['id'] = params['album']
 
     if operation == 'add':
         service.queue.add(media_info)
@@ -402,7 +397,7 @@ def HandleTracks(operation=None, page=1, **params):
 
         new_params = {
             'type': 'track',
-            'path': url,
+            'id': url,
             'name': title,
             'thumb': params['thumb'],
             'artist': artist,
@@ -414,7 +409,7 @@ def HandleTracks(operation=None, page=1, **params):
 
     service.queue.append_controls(oc, HandleTracks, media_info)
 
-    util.add_pagination_to_response(response, page)
+    service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=HandleTracks, page=page, **params)
 
     return oc
@@ -485,7 +480,7 @@ def SearchTracks(title, query, page, **params):
 
         oc.add(HandleTrack(path=url, name=unicode(title), thumb=thumb, artist=artist, format=format))
 
-    util.add_pagination_to_response(response, page)
+    service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=SearchTracks, title=title, query=query, page=page, **params)
 
     return oc
@@ -503,7 +498,7 @@ def SearchArtists(title, query, page, **params):
     for artist in BuildArtistsList(response['objects']):
         oc.add(artist)
 
-    util.add_pagination_to_response(response, page)
+    service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=SearchArtists, title=title, query=query, page=page, **params)
 
     return oc
@@ -521,7 +516,7 @@ def SearchAlbums(title, query, page=1, **params):
     for media in BuildAlbumsList(response['objects']):
         oc.add(media)
 
-    util.add_pagination_to_response(response, page)
+    service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=SearchAlbums, title=title, query=query, page=page, **params)
 
     return oc
@@ -539,7 +534,7 @@ def SearchCollections(title, query, page=1, **params):
     for media in BuildArtistsList(response['objects']):
         oc.add(media)
 
-    util.add_pagination_to_response(response, page)
+    service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=SearchCollections, title=title, query=query, page=page, **params)
 
     return oc
@@ -562,7 +557,7 @@ def HandleTrack(container=False, **params):
 
     url_items = [
         {
-            "url": media_info['path'],
+            "url": media_info['id'],
             "config": {
                 "container": audio_container,
                 "audio_codec": audio_codec,
