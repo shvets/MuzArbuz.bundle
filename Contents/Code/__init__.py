@@ -42,24 +42,12 @@ def HandleAlbumsMenu(title):
             title=unicode(L('All Albums'))
     ))
 
-    new_params = {
-        'filter': 'album',
-        'name': L('Favorite Albums'),
-        'title': L('Favorite Albums'),
-        'thumb': None
-    }
     oc.add(DirectoryObject(
-            key=Callback(main.HandleTracks, **new_params),
+            key=Callback(main.HandleQueue, filter='album'),
             title=unicode(L('Favorite Albums'))))
 
-    new_params = {
-        'filter': 'parent__id',
-        'name': L('Favorite Double Albums'),
-        'title': L('Favorite Double Albums'),
-        'thumb': None
-    }
     oc.add(DirectoryObject(
-            key=Callback(main.HandleDoubleAlbum, **new_params),
+            key=Callback(main.HandleQueue, filter='double_album'),
             title=unicode(L('Favorite Double Albums'))))
 
     oc.add(InputDirectoryObject(
@@ -108,7 +96,7 @@ def HandleCollectionsMenu(title):
             title=unicode(L('All Collections'))
     ))
     oc.add(DirectoryObject(
-            key=Callback(main.HandleTracks, title=L('Favorite Collections')),
+            key=Callback(main.HandleQueue, title=L('Favorite Collections')),
             title=unicode(L('Favorite Collections'))
     ))
 
@@ -130,7 +118,7 @@ def HandleGenresMenu(title):
     ))
 
     oc.add(DirectoryObject(
-            key=Callback(main.HandleAlbums, title=L('Favorite Genres')),
+            key=Callback(main.HandleQueue, title=L('Favorite Genres')),
             title=unicode(L('Favorite Genres'))
     ))
 

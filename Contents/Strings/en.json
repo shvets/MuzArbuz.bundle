@@ -25,10 +25,8 @@
   "Now": "Now",
 
   "Queue": "Queue",
-  "Add to Queue": "Add to queue",
-  "Remove from Queue": "Remove from queue",
-  "Media Added": "This media was added.",
-  "Media Removed": "This media was removed.",
+  "Add Bookmark": "Add Bookmark",
+  "Remove Bookmark": "Remove Bookmark",
 
   // preferences
   "Your Language": "Your Language: ",

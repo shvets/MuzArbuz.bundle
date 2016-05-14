@@ -25,10 +25,8 @@
   "Now": "Сейчас",
 
   "Queue": "Очередь",
-  "Add to Queue": "Добавить в очередь",
-  "Remove from Queue": "Удалить из очереди",
-  "Media Added": "Элемент добавлен.",
-  "Media Removed": "Элемент удален.",
+  "Add Bookmark": "Добавить в очередь",
+  "Remove Bookmark": "Удалить из очереди",
 
   // preferences
   "Your Language": "Ваш язык: ",
