@@ -86,8 +86,8 @@ def reload():
 
 @task
 def deploy():
-    reset()
     copy(plugin_dir)
+    reset()
     reload()
 
 @task
