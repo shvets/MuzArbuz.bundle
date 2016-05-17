@@ -98,7 +98,7 @@ def HandleDoubleAlbum(operation=None, **params):
 
     media_info = MediaInfo(**params)
 
-    service.service.handle_bookmark_operation(operation, media_info)
+    service.queue.handle_bookmark_operation(operation, media_info)
 
     response = service.get_albums(limit=util.get_elements_per_page(),
                                   year__gte=util.get_start_music_year(),
@@ -202,7 +202,7 @@ def HandleArtist(operation=None, **params):
 
     media_info = MediaInfo(**params)
 
-    service.service.handle_bookmark_operation(operation, media_info)
+    service.queue.handle_bookmark_operation(operation, media_info)
 
     response1 = service.get_albums(artists=params['id'], limit=1, offset=0,
                                    year__gte=util.get_start_music_year(),
@@ -284,7 +284,7 @@ def HandleCollections(title, page=1):
 def HandleCollection(operation=None, **params):
     media_info = MediaInfo(**params)
 
-    service.service.handle_bookmark_operation(operation, media_info)
+    service.queue.handle_bookmark_operation(operation, media_info)
 
     oc = ObjectContainer(title2=unicode(L(params['name'])))
 
@@ -335,7 +335,7 @@ def HandleGenres(title):
 def HandleGenre(operation=None, **params):
     media_info = MediaInfo(**params)
 
-    service.service.handle_bookmark_operation(operation, media_info)
+    service.queue.handle_bookmark_operation(operation, media_info)
 
     oc = ObjectContainer(title2=unicode(L(params['name'])))
 
@@ -356,7 +356,7 @@ def HandleTracks(operation=None, page=1, **params):
     if 'album' in params:
         media_info['id'] = params['album']
 
-    service.service.handle_bookmark_operation(operation, media_info)
+    service.queue.handle_bookmark_operation(operation, media_info)
 
     oc = ObjectContainer(title2=unicode(params['name']))
 
