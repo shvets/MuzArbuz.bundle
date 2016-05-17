@@ -98,7 +98,7 @@ def HandleDoubleAlbum(operation=None, **params):
 
     media_info = MediaInfo(**params)
 
-    service.handle_bookmark_operation(operation, media_info)
+    service.service.handle_bookmark_operation(operation, media_info)
 
     response = service.get_albums(limit=util.get_elements_per_page(),
                                   year__gte=util.get_start_music_year(),
@@ -120,7 +120,7 @@ def HandleDoubleAlbum(operation=None, **params):
         key = Callback(HandleTracks, **new_params)
         oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
 
-    service.append_bookmark_controls(oc, HandleDoubleAlbum, media_info)
+    service.queue.append_bookmark_controls(oc, HandleDoubleAlbum, media_info)
 
     return oc
 
@@ -202,7 +202,7 @@ def HandleArtist(operation=None, **params):
 
     media_info = MediaInfo(**params)
 
-    service.handle_bookmark_operation(operation, media_info)
+    service.service.handle_bookmark_operation(operation, media_info)
 
     response1 = service.get_albums(artists=params['id'], limit=1, offset=0,
                                    year__gte=util.get_start_music_year(),
@@ -239,7 +239,7 @@ def HandleArtist(operation=None, **params):
             thumb=params['thumb']
         ))
 
-    service.append_bookmark_controls(oc, HandleArtist, media_info)
+    service.queue.append_bookmark_controls(oc, HandleArtist, media_info)
 
     return oc
 
@@ -284,7 +284,7 @@ def HandleCollections(title, page=1):
 def HandleCollection(operation=None, **params):
     media_info = MediaInfo(**params)
 
-    service.handle_bookmark_operation(operation, media_info)
+    service.service.handle_bookmark_operation(operation, media_info)
 
     oc = ObjectContainer(title2=unicode(L(params['name'])))
 
@@ -335,14 +335,14 @@ def HandleGenres(title):
 def HandleGenre(operation=None, **params):
     media_info = MediaInfo(**params)
 
-    service.handle_bookmark_operation(operation, media_info)
+    service.service.handle_bookmark_operation(operation, media_info)
 
     oc = ObjectContainer(title2=unicode(L(params['name'])))
 
     key = Callback(HandleAlbums, title=params['name'], genre__in=params['genre__in'])
     oc.add(DirectoryObject(key=key, title=unicode(params['name'])))
 
-    service.append_bookmark_controls(oc, HandleGenre, media_info)
+    service.queue.append_bookmark_controls(oc, HandleGenre, media_info)
 
     oc.add(InputDirectoryObject(key=Callback(HandleSearch), title=unicode(L("Search Music")),
                                 thumb=R(constants.SEARCH_ICON)))
@@ -356,7 +356,7 @@ def HandleTracks(operation=None, page=1, **params):
     if 'album' in params:
         media_info['id'] = params['album']
 
-    service.handle_bookmark_operation(operation, media_info)
+    service.service.handle_bookmark_operation(operation, media_info)
 
     oc = ObjectContainer(title2=unicode(params['name']))
 
@@ -392,7 +392,7 @@ def HandleTracks(operation=None, page=1, **params):
 
         oc.add(HandleTrack(**new_params))
 
-    service.append_bookmark_controls(oc, HandleTracks, media_info)
+    service.queue.append_bookmark_controls(oc, HandleTracks, media_info)
 
     service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=HandleTracks, page=page, **params)
