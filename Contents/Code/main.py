@@ -228,7 +228,7 @@ def HandleArtist(operation=None, **params):
     if count2 > 0:
         new_params = {
             'type': 'tracks',
-            'artist': params['id'],
+            'artists': params['id'],
             'id': params['id'],
             'name': L('Audio Tracks') + " " + params['name'],
             'thumb': params['thumb']
@@ -463,7 +463,15 @@ def SearchTracks(title, query, page, **params):
         format = 'mp3'
         url = service.BASE_URL + file
 
-        oc.add(HandleTrack(path=url, name=unicode(title), thumb=thumb, artist=artist, format=format))
+        new_params = {
+            'type': 'track',
+            'id': url,
+            'name': title,
+            'thumb': 'thumb',
+            'artist': artist,
+            'format': format
+        }
+        oc.add(HandleTrack(**new_params))
 
     service.add_pagination_to_response(response, page, util.get_elements_per_page())
     pagination.append_controls(oc, response['data'], callback=SearchTracks, title=title, query=query, page=page, **params)
@@ -535,6 +543,11 @@ def HandleTrack(container=False, **params):
         audio_container = Container.MP3
         audio_codec = AudioCodec.MP3
 
+    if 'bitrate' in media_info:
+        bitrate = media_info['bitrate']
+    else:
+        bitrate = 0
+
     if 'duration' in media_info:
         duration = media_info['duration']
     else:
@@ -546,7 +559,7 @@ def HandleTrack(container=False, **params):
             "config": {
                 "container": audio_container,
                 "audio_codec": audio_codec,
-                "bitrate": media_info['bitrate'],
+                "bitrate": bitrate,
                 "duration": duration
             }
         }
