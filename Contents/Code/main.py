@@ -2,7 +2,7 @@
 
 from media_info import MediaInfo
 import util
-import constants
+import plex_util
 import pagination
 from flow_builder import FlowBuilder
 
@@ -12,7 +12,7 @@ service = MuzArbuzPlexService()
 
 builder = FlowBuilder()
 
-@route(constants.PREFIX + '/albums')
+@route(PREFIX + '/albums')
 def HandleAlbums(title, page=1, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -33,7 +33,7 @@ def HandleAlbums(title, page=1, **params):
     oc.add(InputDirectoryObject(
             key=Callback(SearchAlbums, title=unicode(L("Albums Search")), page=page),
             title=unicode(L("Albums Search")),
-            thumb=R(constants.SEARCH_ICON)
+            thumb=R(SEARCH_ICON)
     ))
 
     service.add_pagination_to_response(response, page, util.get_elements_per_page())
@@ -88,11 +88,11 @@ def BuildAlbumsList(response):
 
     return list
 
-@route(constants.PREFIX + '/album')
+@route(PREFIX + '/album')
 def HandleAlbum(**params):
     return HandleTracks(**params)
 
-@route(constants.PREFIX + '/double_album')
+@route(PREFIX + '/double_album')
 def HandleDoubleAlbum(operation=None, **params):
     oc = ObjectContainer(title2=unicode(params['name']))
 
@@ -124,7 +124,7 @@ def HandleDoubleAlbum(operation=None, **params):
 
     return oc
 
-@route(constants.PREFIX + '/letter')
+@route(PREFIX + '/letter')
 def HandleLetter(title, page=1, **params):
     oc = ObjectContainer(title2=unicode(title))
 
@@ -143,12 +143,12 @@ def HandleLetter(title, page=1, **params):
     oc.add(InputDirectoryObject(
         key=Callback(SearchArtists, title=unicode(L("Artists Search"))),
         title=unicode(L("Artists Search")),
-        thumb=R(constants.SEARCH_ICON)
+        thumb=R(SEARCH_ICON)
     ))
 
     return oc
 
-@route(constants.PREFIX + '/artists')
+@route(PREFIX + '/artists')
 def HandleArtists(title, page=1, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -169,7 +169,7 @@ def HandleArtists(title, page=1, **params):
     oc.add(InputDirectoryObject(
         key=Callback(SearchArtists, title=unicode(L("Artists Search"))),
         title=unicode(L("Artists Search")),
-        thumb=R(constants.SEARCH_ICON)
+        thumb=R(SEARCH_ICON)
     ))
 
     return oc
@@ -196,7 +196,7 @@ def BuildArtistsList(response):
 
     return list
 
-@route(constants.PREFIX + '/artist')
+@route(PREFIX + '/artist')
 def HandleArtist(operation=None, **params):
     oc = ObjectContainer(title2=unicode(L("Artist") + " " + params['name']))
 
@@ -243,7 +243,7 @@ def HandleArtist(operation=None, **params):
 
     return oc
 
-@route(constants.PREFIX + '/collections')
+@route(PREFIX + '/collections')
 def HandleCollections(title, page=1):
     oc = ObjectContainer()
 
@@ -272,7 +272,7 @@ def HandleCollections(title, page=1):
     oc.add(InputDirectoryObject(
         key=Callback(SearchCollections, title=unicode(L("Collections Search"))),
         title=unicode(L("Collections Search")),
-        thumb=R(constants.SEARCH_ICON)
+        thumb=R(SEARCH_ICON)
     ))
 
     service.add_pagination_to_response(response, page, util.get_elements_per_page())
@@ -280,7 +280,7 @@ def HandleCollections(title, page=1):
 
     return oc
 
-@route(constants.PREFIX + '/collection')
+@route(PREFIX + '/collection')
 def HandleCollection(operation=None, **params):
     media_info = MediaInfo(**params)
 
@@ -302,7 +302,7 @@ def HandleCollection(operation=None, **params):
 
     return oc
 
-@route(constants.PREFIX + '/genres')
+@route(PREFIX + '/genres')
 def HandleGenres(title):
     oc = ObjectContainer()
 
@@ -327,11 +327,11 @@ def HandleGenres(title):
         oc.add(DirectoryObject(key=key, title=unicode(name), thumb=thumb))
 
         oc.add(InputDirectoryObject(key=Callback(HandleSearch), title=unicode(L("Search Music")),
-                                    thumb=R(constants.SEARCH_ICON)))
+                                    thumb=R(SEARCH_ICON)))
 
     return oc
 
-@route(constants.PREFIX + '/genre')
+@route(PREFIX + '/genre')
 def HandleGenre(operation=None, **params):
     media_info = MediaInfo(**params)
 
@@ -345,11 +345,11 @@ def HandleGenre(operation=None, **params):
     service.queue.append_bookmark_controls(oc, HandleGenre, media_info)
 
     oc.add(InputDirectoryObject(key=Callback(HandleSearch), title=unicode(L("Search Music")),
-                                thumb=R(constants.SEARCH_ICON)))
+                                thumb=R(SEARCH_ICON)))
 
     return oc
 
-@route(constants.PREFIX + '/tracks')
+@route(PREFIX + '/tracks')
 def HandleTracks(operation=None, page=1, **params):
     media_info = MediaInfo(**params)
 
@@ -399,7 +399,7 @@ def HandleTracks(operation=None, page=1, **params):
 
     return oc
 
-@route(constants.PREFIX + '/search')
+@route(PREFIX + '/search')
 def HandleSearch(query=None, page=1):
     page = int(page)
 
@@ -441,7 +441,7 @@ def HandleSearch(query=None, page=1):
 
     return oc
 
-@route(constants.PREFIX + '/search_tracks')
+@route(PREFIX + '/search_tracks')
 def SearchTracks(title, query, page, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -478,7 +478,7 @@ def SearchTracks(title, query, page, **params):
 
     return oc
 
-@route(constants.PREFIX + '/search_artists')
+@route(PREFIX + '/search_artists')
 def SearchArtists(title, query, page, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -496,7 +496,7 @@ def SearchArtists(title, query, page, **params):
 
     return oc
 
-@route(constants.PREFIX + '/search_albums')
+@route(PREFIX + '/search_albums')
 def SearchAlbums(title, query, page=1, **params):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -514,7 +514,7 @@ def SearchAlbums(title, query, page=1, **params):
 
     return oc
 
-@route(constants.PREFIX + '/search_collections')
+@route(PREFIX + '/search_collections')
 def SearchCollections(title, query, page=1, **params):
     page = int(page)
     limit = util.get_elements_per_page()
@@ -532,7 +532,7 @@ def SearchCollections(title, query, page=1, **params):
 
     return oc
 
-@route(constants.PREFIX + '/track')
+@route(PREFIX + '/track')
 def HandleTrack(container=False, **params):
     media_info = MediaInfo(**params)
 
@@ -576,7 +576,7 @@ def HandleTrack(container=False, **params):
     else:
         return track
 
-@route(constants.PREFIX + '/container')
+@route(PREFIX + '/container')
 def HandleContainer(**params):
     type = params['type']
 
@@ -593,7 +593,7 @@ def HandleContainer(**params):
     elif type == 'genre':
         return HandleGenre(**params)
 
-@route(constants.PREFIX + '/queue')
+@route(PREFIX + '/queue')
 def HandleQueue(filter=None):
     oc = ObjectContainer(title2=unicode(L('Queue')))
 
@@ -608,7 +608,7 @@ def HandleQueue(filter=None):
 
             oc.add(DirectoryObject(
                 key=Callback(HandleContainer, **media_info),
-                title=util.sanitize(media_info['name']),
+                title=plex_util.sanitize(media_info['name']),
                 thumb=thumb
             ))
 
@@ -625,7 +625,7 @@ def HandleQueue(filter=None):
 
     return oc
 
-@route(constants.PREFIX + '/clear_queue')
+@route(PREFIX + '/clear_queue')
 def ClearQueue(filter=None):
     if not filter:
         service.queue.clear()
@@ -675,6 +675,6 @@ def MediaObjectsForURL(url_items, player):
 
     return media_objects
 
-@route(constants.PREFIX + '/play_audio')
+@route(PREFIX + '/play_audio')
 def PlayAudio(url):
     return Redirect(url)

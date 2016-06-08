@@ -1,12 +1,23 @@
+PREFIX = '/music/music'
+
+ART = 'art-default.jpg'
+ICON = 'icon-default.png'
+SEARCH_ICON = 'icon-search.png'
+OPTIONS_ICON = 'icon-options.png'
+
 import library_bridge
 
 library_bridge.bridge.export_object('L', L)
 library_bridge.bridge.export_object('R', R)
 library_bridge.bridge.export_object('Log', Log)
+library_bridge.bridge.export_object('Resource', Resource)
 library_bridge.bridge.export_object('Datetime', Datetime)
 library_bridge.bridge.export_object('Core', Core)
+library_bridge.bridge.export_object('Prefs', Prefs)
+library_bridge.bridge.export_object('Locale', Locale)
 library_bridge.bridge.export_object('Callback', Callback)
 library_bridge.bridge.export_object('AudioCodec', AudioCodec)
+library_bridge.bridge.export_object('VideoCodec', VideoCodec)
 library_bridge.bridge.export_object('AudioStreamObject', AudioStreamObject)
 library_bridge.bridge.export_object('VideoStreamObject', VideoStreamObject)
 library_bridge.bridge.export_object('DirectoryObject', DirectoryObject)
@@ -17,9 +28,13 @@ library_bridge.bridge.export_object('TVShowObject', TVShowObject)
 library_bridge.bridge.export_object('MovieObject', MovieObject)
 library_bridge.bridge.export_object('TrackObject', TrackObject)
 library_bridge.bridge.export_object('VideoClipObject', VideoClipObject)
+library_bridge.bridge.export_object('MessageContainer', MessageContainer)
+library_bridge.bridge.export_object('Container', Container)
+
 
 import constants
 import util
+import plex_util
 
 from muz_arbuz_plex_service import MuzArbuzPlexService
 
@@ -30,11 +45,11 @@ import main
 def Start():
     HTTP.CacheTime = CACHE_1HOUR
 
-    util.validate_prefs()
+    plex_util.validate_prefs()
 
-@handler(constants.PREFIX, 'MuzArbuz', thumb=constants.ICON, art=constants.ART)
+@handler(PREFIX, 'MuzArbuz', thumb=ICON, art=ART)
 def MainMenu():
-    oc = ObjectContainer(title1='MuzArbuz', art=R(constants.ART))
+    oc = ObjectContainer(title1='MuzArbuz', art=R(ART))
 
     oc.http_cookies = HTTP.CookiesForURL(service.API_URL)
 
@@ -47,11 +62,11 @@ def MainMenu():
     oc.add(DirectoryObject(key=Callback(main.HandleQueue), title=unicode(L("Queue"))))
 
     oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=unicode(L("Search Music")),
-                                thumb=R(constants.SEARCH_ICON)))
+                                thumb=R(SEARCH_ICON)))
 
     return oc
 
-@route(constants.PREFIX + '/albums_menu')
+@route(PREFIX + '/albums_menu')
 def HandleAlbumsMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -71,12 +86,12 @@ def HandleAlbumsMenu(title):
     oc.add(InputDirectoryObject(
             key=Callback(main.SearchAlbums, title=unicode(L("Albums Search"))),
             title=unicode(L("Albums Search")),
-            thumb=R(constants.SEARCH_ICON)
+            thumb=R(SEARCH_ICON)
     ))
 
     return oc
 
-@route(constants.PREFIX + '/artists_menu')
+@route(PREFIX + '/artists_menu')
 def HandleArtistsMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -100,12 +115,12 @@ def HandleArtistsMenu(title):
     oc.add(InputDirectoryObject(
         key=Callback(main.SearchArtists, title=unicode(L("Artists Search"))),
         title=unicode(L("Artists Search")),
-        thumb=R(constants.SEARCH_ICON)
+        thumb=R(SEARCH_ICON)
     ))
 
     return oc
 
-@route(constants.PREFIX + '/collections_menu')
+@route(PREFIX + '/collections_menu')
 def HandleCollectionsMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -121,12 +136,12 @@ def HandleCollectionsMenu(title):
     oc.add(InputDirectoryObject(
         key=Callback(main.SearchCollections, title=unicode(L("Collections Search"))),
         title=unicode(L("Collections Search")),
-        thumb=R(constants.SEARCH_ICON)
+        thumb=R(SEARCH_ICON)
     ))
 
     return oc
 
-@route(constants.PREFIX + '/genres_menu')
+@route(PREFIX + '/genres_menu')
 def HandleGenresMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -141,11 +156,11 @@ def HandleGenresMenu(title):
     ))
 
     oc.add(InputDirectoryObject(key=Callback(main.HandleSearch), title=unicode(L("Search Music")),
-                                thumb=R(constants.SEARCH_ICON)))
+                                thumb=R(SEARCH_ICON)))
 
     return oc
 
-@route(constants.PREFIX + '/cyrillic_letters_menu')
+@route(PREFIX + '/cyrillic_letters_menu')
 def GetCyrillicLettersMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
@@ -156,7 +171,7 @@ def GetCyrillicLettersMenu(title):
 
     return oc
 
-@route(constants.PREFIX + '/latin_letters_menu')
+@route(PREFIX + '/latin_letters_menu')
 def GetLatinLettersMenu(title):
     oc = ObjectContainer(title2=unicode(L(title)))
 
